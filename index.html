@@ -11,7 +11,7 @@
         
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
         
-        /* Area Pratinjau Kertas */
+        /* Area Pratinjau Kertas Folio F4 */
         .folio-paper {
             width: 210mm;
             min-height: 330mm;
@@ -73,28 +73,24 @@
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1.01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">Testing Mode API</span></h1>
+                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 uppercase tracking-tighter">v4.5 PRO</span></h1>
             </div>
             
-            <div class="flex items-center gap-4">
-                
-                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-lg shadow-inner">
-                    <input type="password" id="manual-api-key" placeholder="Paste API Key di sini..." class="text-xs p-1.5 outline-none w-48 bg-transparent text-slate-700 font-medium">
-                    <button onclick="setManualKey()" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded transition">KONEK</button>
-                </div>
-
-                <div class="w-px h-6 bg-slate-200 ml-2"></div>
+            <div class="flex items-center gap-6">
+                <button onclick="toggleApiModal()" class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-300 hover:bg-slate-200 px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    PENGATURAN API KEY
+                </button>
 
                 <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity opacity-100">
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        <span id="ping-status" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span id="dot-status" class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </span>
-                    AI Belum Terhubung
+                    <span id="text-status">AI Terputus</span>
                 </div>
 
-                <div class="w-px h-6 bg-slate-200 ml-2"></div>
-                
+                <div class="w-px h-6 bg-slate-200"></div>
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">Zoom</span>
                     <input type="range" min="0.5" max="1.5" step="0.05" value="1" class="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="zoomPaper(this.value)">
@@ -105,929 +101,267 @@
         <div class="bg-slate-900 px-6 py-2 flex items-center justify-between">
             <nav class="flex items-center gap-2 overflow-x-auto custom-scroll pb-1">
                 <button onclick="changeTab('tab-data', this)" class="nav-btn px-5 py-2.5 rounded-lg flex items-center gap-2 nav-active text-white transition hover:bg-slate-800 whitespace-nowrap">
-                    <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     <span class="font-medium text-sm">Data Dasar</span>
                 </button>
                 <button onclick="changeTab('tab-legal', this)" class="nav-btn px-5 py-2.5 rounded-lg flex items-center gap-2 text-slate-300 hover:bg-slate-800 transition whitespace-nowrap">
-                    <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
                     <span class="font-medium text-sm">Konsideran</span>
                 </button>
                 <button onclick="changeTab('tab-diktum', this)" class="nav-btn px-5 py-2.5 rounded-lg flex items-center gap-2 text-slate-300 hover:bg-slate-800 transition whitespace-nowrap">
-                    <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     <span class="font-medium text-sm">Poin Diktum</span>
                 </button>
-                <button id="btn-nav-lampiran" onclick="changeTab('tab-lampiran', this)" class="nav-btn px-5 py-2.5 rounded-lg flex items-center gap-2 text-slate-300 hover:bg-slate-800 transition whitespace-nowrap">
-                    <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                <button onclick="changeTab('tab-lampiran', this)" class="nav-btn px-5 py-2.5 rounded-lg flex items-center gap-2 text-slate-300 hover:bg-slate-800 transition whitespace-nowrap">
                     <span class="font-medium text-sm">Lampiran</span>
                 </button>
             </nav>
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg shadow-blue-900/50 flex justify-center items-center gap-2 transition-all active:scale-95 whitespace-nowrap shrink-0 ml-4">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all active:scale-95 ml-4 shrink-0">
                 CETAK PDF
             </button>
         </div>
     </header>
 
     <main class="flex-1 overflow-y-auto custom-scroll p-4 md:p-8 scroll-container" id="main-scroll-area">
-        
         <div class="w-full max-w-5xl mx-auto space-y-12 pb-24">
             
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 no-print relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-
+                
                 <div id="tab-data" class="tab-panel active">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="space-y-6">
                             <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-5">
-                                <h3 class="text-xs font-bold text-blue-700 uppercase mb-3 flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
-                                    SK Lama / Acuan SK Dasar
-                                </h3>
+                                <h3 class="text-xs font-bold text-blue-700 uppercase mb-3">Upload Referensi SK (PDF/TXT)</h3>
                                 <input type="file" id="upload-ref" accept=".pdf,.txt" class="hidden" onchange="processFile(event)">
-                                <label for="upload-ref" class="block w-full text-center py-4 bg-white border-2 border-dashed border-blue-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition group">
-                                    <span id="file-name" class="text-sm font-semibold text-blue-600 group-hover:text-blue-700 transition">Klik untuk Upload Acuan/SK Lama</span>
-                                    <p class="text-[10px] text-slate-400 mt-1">Format: PDF / TXT</p>
+                                <label for="upload-ref" class="block w-full text-center py-4 bg-white border-2 border-dashed border-blue-300 rounded-xl cursor-pointer hover:border-blue-500 transition">
+                                    <span id="file-name" class="text-sm font-semibold text-blue-600">Klik untuk Upload Acuan</span>
                                 </label>
-                                <p id="file-status" class="text-xs text-green-600 mt-3 font-medium hidden flex items-center gap-1 justify-center">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                    <span>Dokumen berhasil dibaca</span>
-                                </p>
                             </div>
-
                             <div class="space-y-4">
-                                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b pb-2">Identitas Surat</h3>
-                                <div>
-                                    <label class="text-[11px] font-bold text-slate-600 ml-1">Nomor Surat</label>
-                                    <input type="text" id="in-nomor" value="440/001/SK-PKM/2026" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none transition bg-slate-50 focus:bg-white" oninput="sync('nomor', this.value)">
-                                </div>
-                                <div>
-                                    <label class="text-[11px] font-bold text-slate-600 ml-1">Judul SK (Tentang)</label>
-                                    <textarea id="in-tentang" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none uppercase min-h-[90px] transition bg-slate-50 focus:bg-white custom-scroll" oninput="sync('tentang', this.value)">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</textarea>
-                                </div>
+                                <div><label class="text-[11px] font-bold text-slate-600">Nomor Surat</label><input type="text" id="in-nomor" value="440/001/SK-PKM/2026" class="w-full mt-1 border rounded-lg p-2.5 text-sm" oninput="sync('nomor', this.value)"></div>
+                                <div><label class="text-[11px] font-bold text-slate-600">Judul SK (Tentang)</label><textarea id="in-tentang" class="w-full mt-1 border rounded-lg p-2.5 text-sm uppercase min-h-[90px]" oninput="sync('tentang', this.value)">PEMBENTUKAN TIM PENINGKATAN MUTU</textarea></div>
                             </div>
                         </div>
-
                         <div class="space-y-4">
-                            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b pb-2">Kop & Instansi</h3>
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-600 ml-1">Pemerintah / Yayasan</label>
-                                <input type="text" id="in-pemda" value="PEMERINTAH KABUPATEN CONTOH" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none uppercase transition bg-slate-50 focus:bg-white" oninput="sync('pemda', this.value)">
-                            </div>
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-600 ml-1">Nama Fasyankes / Instansi</label>
-                                <input type="text" id="in-instansi" value="UPTD PUSKESMAS PERCONTOHAN" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none uppercase transition bg-slate-50 focus:bg-white" oninput="sync('instansi', this.value)">
-                            </div>
-                            <div class="pt-4 flex items-center justify-center p-6 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
-                                <img src="https://api.iconify.design/lucide:file-text.svg?color=%2394a3b8" alt="Document Icon" class="w-20 h-20 opacity-50">
-                            </div>
+                            <div><label class="text-[11px] font-bold text-slate-600">Pemerintah / Yayasan</label><input type="text" id="in-pemda" value="PEMERINTAH KABUPATEN CONTOH" class="w-full mt-1 border rounded-lg p-2.5 text-sm uppercase" oninput="sync('pemda', this.value)"></div>
+                            <div><label class="text-[11px] font-bold text-slate-600">Nama Instansi</label><input type="text" id="in-instansi" value="UPTD PUSKESMAS PERCONTOHAN" class="w-full mt-1 border rounded-lg p-2.5 text-sm uppercase" oninput="sync('instansi', this.value)"></div>
                         </div>
                     </div>
                 </div>
 
                 <div id="tab-legal" class="tab-panel">
                     <div class="max-w-3xl mx-auto space-y-6">
-                        <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-5">
-                            <label class="block text-sm font-bold text-indigo-800 mb-2 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                Arahan Khusus AI
-                            </label>
-                            <textarea id="in-legal-info" class="w-full border border-indigo-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-400 outline-none min-h-[100px] shadow-inner custom-scroll bg-white" placeholder="Contoh: Rujuk PMK No 11, pastikan mencantumkan UU Kesehatan terbaru..."></textarea>
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5">
+                            <label class="block text-sm font-bold text-indigo-800 mb-2">Arahan Khusus AI</label>
+                            <textarea id="in-legal-info" class="w-full border rounded-xl p-4 text-sm min-h-[100px]" placeholder="Contoh: Rujuk PMK No 11, UU Kesehatan terbaru..."></textarea>
                             
-                            <div class="flex items-center gap-3 mt-4 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm cursor-pointer" onclick="document.getElementById('chk-live-browsing').click()">
-                                <input type="checkbox" id="chk-live-browsing" class="w-5 h-5 accent-indigo-600 cursor-pointer" onclick="event.stopPropagation()">
+                            <div class="flex items-center gap-3 mt-4 pt-4 border-t border-indigo-100 cursor-pointer" onclick="document.getElementById('chk-live').click()">
+                                <input type="checkbox" id="chk-live" class="w-5 h-5 accent-indigo-600 cursor-pointer" onclick="event.stopPropagation()">
                                 <div class="flex flex-col select-none">
-                                    <label class="text-sm font-bold text-indigo-800 cursor-pointer">Aktifkan Live Browsing (Google Search)</label>
-                                    <span class="text-[10px] text-slate-500">Centang untuk mencari aturan terbaru. Jika macet/error, hilangkan centangnya.</span>
+                                    <label for="chk-live" class="text-sm font-bold text-indigo-800 cursor-pointer">Aktifkan Live Browsing (Google Search)</label>
+                                    <span class="text-[10px] text-slate-500">Centang jika butuh data hukum terbaru dari internet. Matikan jika macet.</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3 px-5 py-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 transition cursor-pointer flex-1" onclick="document.getElementById('chk-memperhatikan').click()">
-                                <input type="checkbox" id="chk-memperhatikan" class="w-5 h-5 text-blue-600 rounded cursor-pointer accent-blue-600" onchange="toggleMemperhatikan(this.checked)" checked onclick="event.stopPropagation()">
-                                <label class="text-sm font-semibold text-slate-700 cursor-pointer select-none">Sertakan "Memperhatikan"</label>
-                            </div>
-                        </div>
-
-                        <button onclick="aiGenerate('legal')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 flex justify-center items-center gap-2 transition-transform active:scale-[0.98]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-                            GENERATE KONSIDERAN (AI)
-                        </button>
+                        <div class="flex items-center gap-3 px-5 py-4 bg-white border border-slate-200 rounded-xl shadow-sm"><input type="checkbox" id="chk-memperhatikan" class="w-5 h-5 text-blue-600 rounded" onchange="toggleMemperhatikan(this.checked)" checked><label class="text-sm font-semibold text-slate-700">Sertakan "Memperhatikan"</label></div>
                         
-                        <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl border border-slate-100">
-                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            <p id="legal-loader-text" class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Menyusun Landasan Hukum...</p>
-                        </div>
-
-                        <div class="pt-4 border-t border-slate-200 mt-6">
-                            <p class="text-xs text-slate-500 mb-4 font-medium"><span class="font-bold text-blue-600">Tip:</span> Anda dapat mengedit teks di bawah ini secara manual. Editan Anda akan mempengaruhi sintesis AI berikutnya.</p>
-                            <div id="konsideran-list" class="space-y-6"></div>
-                        </div>
+                        <button onclick="aiGenerate('legal')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-transform active:scale-95">GENERATE KONSIDERAN (AI)</button>
+                        <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl"><p id="loader-text-legal" class="text-xs text-slate-500 mt-3 font-bold animate-pulse">Menyusun Landasan Hukum...</p></div>
+                        <div id="konsideran-list" class="space-y-6 mt-6"></div>
                     </div>
                 </div>
 
                 <div id="tab-diktum" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-6">
-                        <button onclick="aiGenerate('diktum')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 flex justify-center items-center gap-2 transition-transform active:scale-[0.98]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            GENERATE POIN DIKTUM (AI)
-                        </button>
-                        
-                        <div id="loader-diktum" class="hidden text-center py-6 bg-slate-50 rounded-xl border border-slate-100">
-                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                            <p class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Menyusun Poin Keputusan Bebas Redundansi...</p>
-                        </div>
-
-                        <div id="alert-lamp" class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-3 hidden">
-                            <svg class="w-5 h-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                            <div><b>Pemberitahuan:</b> Diktum mencantumkan <b>Lampiran</b>. Segera sesuaikan detail tabel di menu Lampiran.</div>
-                        </div>
-                        
-                        <div class="pt-4 border-t border-slate-200 mt-6">
-                            <p class="text-xs text-slate-500 mb-4 font-medium"><span class="font-bold text-blue-600">Tip:</span> Edit form di bawah untuk merevisi poin keputusan. Perubahan ini menjadi acuan pembuatan tabel lampiran.</p>
-                            <div id="diktum-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                        </div>
+                        <button onclick="aiGenerate('diktum')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold">GENERATE POIN DIKTUM (AI)</button>
+                        <div id="loader-diktum" class="hidden text-center py-6 bg-slate-50 rounded-xl"><p class="text-xs text-slate-500 mt-3 font-bold animate-pulse">Merancang Poin Keputusan...</p></div>
+                        <div id="diktum-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
                     </div>
                 </div>
 
                 <div id="tab-lampiran" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-6">
-                        <button onclick="addLampiran()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-xl font-bold transition flex justify-center items-center gap-2 shadow-sm">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            TAMBAH LEMBAR LAMPIRAN BARU
-                        </button>
+                        <button onclick="addLampiran()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 border rounded-xl font-bold">+ TAMBAH LEMBAR LAMPIRAN</button>
                         <div id="lampiran-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </div>
                 </div>
-
             </div>
 
             <div class="flex flex-col items-center pt-8 border-t border-slate-200/60">
-                <div class="no-print bg-slate-800 text-slate-100 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest mb-8 flex items-center gap-2 shadow-lg shadow-slate-300">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <div class="no-print bg-slate-800 text-slate-100 px-6 py-2.5 rounded-full text-xs font-bold mb-8 shadow-lg">
                     Pratinjau Kertas Folio (F4)
                 </div>
                 
                 <div id="print-area" class="w-full flex flex-col items-center gap-12 pb-10">
-                    
                     <div class="folio-paper" contenteditable="true" spellcheck="false" id="preview-paper">
                         <div class="kop-surat">
-                            <h2 class="uppercase doc-pemda" style="font-size: 14pt; font-weight: bold;">PEMERINTAH KABUPATEN CONTOH</h2>
-                            <h1 class="uppercase doc-instansi" style="font-size: 18pt; font-weight: bold;">UPTD PUSKESMAS PERCONTOHAN</h1>
-                            <p class="text-center doc-alamat" style="font-size: 9pt;">Jalan Kesehatan No. 1, Kecamatan Sehat, Kabupaten Contoh 12345</p>
+                            <h2 class="uppercase doc-pemda font-bold" style="font-size: 14pt;">PEMERINTAH KABUPATEN CONTOH</h2>
+                            <h1 class="uppercase doc-instansi font-bold" style="font-size: 18pt;">UPTD PUSKESMAS PERCONTOHAN</h1>
                         </div>
-
                         <div class="text-center mb-8">
                             <p class="font-bold">KEPUTUSAN <span class="doc-jabatan uppercase">KEPALA UPTD PUSKESMAS PERCONTOHAN</span></p>
                             <p>Nomor: <span class="doc-nomor font-bold">440/001/SK-PKM/2026</span></p>
-                            <br>
-                            <p class="font-bold uppercase">TENTANG</p>
-                            <p class="font-bold uppercase doc-tentang" style="max-width: 80%; margin: 0 auto;">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</p>
-                            <br>
-                            <p class="font-bold uppercase"><span class="doc-jabatan">KEPALA UPTD PUSKESMAS PERCONTOHAN</span>,</p>
+                            <br><p class="font-bold uppercase">TENTANG</p>
+                            <p class="font-bold uppercase doc-tentang" style="max-width: 80%; margin: 0 auto;">PEMBENTUKAN TIM PENINGKATAN MUTU</p>
+                            <br><p class="font-bold uppercase"><span class="doc-jabatan">KEPALA UPTD PUSKESMAS PERCONTOHAN</span>,</p>
                         </div>
-
-                        <table style="border:none">
-                            <tbody id="doc-tbody-menimbang"></tbody>
-                        </table>
-
-                        <table style="border:none">
-                            <tbody id="doc-tbody-mengingat"></tbody>
-                        </table>
-
-                        <table id="doc-table-memperhatikan" style="border:none">
-                            <tbody id="doc-tbody-memperhatikan"></tbody>
-                        </table>
-
+                        <table style="border:none"><tbody id="doc-tbody-menimbang"></tbody></table>
+                        <table style="border:none"><tbody id="doc-tbody-mengingat"></tbody></table>
+                        <table id="doc-table-memperhatikan" style="border:none"><tbody id="doc-tbody-memperhatikan"></tbody></table>
                         <div class="text-center font-bold mb-4 mt-6">MEMUTUSKAN:</div>
-
-                        <table style="border:none">
-                            <tbody id="doc-tbody-diktum"></tbody>
-                        </table>
-
+                        <table style="border:none"><tbody id="doc-tbody-diktum"></tbody></table>
                         <div class="flex justify-end mt-12 page-break-inside-avoid">
                             <div class="w-1/2 text-left" style="padding-left: 2.5rem;">
                                 <p>Ditetapkan di <span class="doc-tempat">Kabupaten Contoh</span><br>pada tanggal <span class="doc-tanggal">2 Januari 2026</span></p>
                                 <p class="font-bold mt-2 uppercase doc-jabatan">KEPALA UPTD PUSKESMAS<br>PERCONTOHAN,</p>
-                                <br><br><br>
-                                <p class="font-bold underline doc-kadis">dr. FULANAH, M.Kes</p>
-                                <p class="doc-nip">NIP. 19800101 200501 2 001</p>
+                                <br><br><br><p class="font-bold underline doc-kadis">dr. FULANAH, M.Kes</p><p class="doc-nip">NIP. 19800101 200501 2 001</p>
                             </div>
                         </div>
                     </div>
-
                     <div id="lampiran-container" class="w-full flex flex-col items-center gap-12"></div>
-
                 </div>
             </div>
-
         </div>
     </main>
 
-    <div id="custom-toast" class="fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 border pointer-events-none">
-        <span id="toast-icon" class="text-xl"></span>
-        <span id="toast-message" class="text-sm font-medium"></span>
+    <div id="custom-toast" class="fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 border pointer-events-none bg-white">
+        <span id="toast-icon" class="text-xl"></span><span id="toast-message" class="text-sm font-medium"></span>
+    </div>
+
+    <div id="api-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 transform scale-95 transition-transform duration-300">
+            <h3 class="text-xl font-bold text-slate-800 mb-2 border-b pb-3">Pengaturan Gemini API Key</h3>
+            <div class="space-y-4">
+                <div class="p-4 border border-blue-400 bg-blue-50/30 rounded-xl">
+                    <label class="text-sm font-bold text-slate-800 block mb-2">API Key Anda:</label>
+                    <input type="password" id="input-api-key" class="w-full border rounded-lg p-3 text-sm" placeholder="Paste API Key di sini...">
+                    <label class="text-sm font-bold text-slate-800 block mt-4 mb-2">Model AI:</label>
+                    <input type="text" id="input-model" class="w-full border rounded-lg p-3 text-sm" placeholder="gemini-2.5-flash">
+                    <button onclick="saveManualKey()" class="mt-4 w-full py-2 bg-blue-600 text-white font-bold rounded-lg transition">Simpan Konfigurasi</button>
+                </div>
+            </div>
+            <button onclick="toggleApiModal()" class="mt-4 w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Tutup</button>
+        </div>
     </div>
 
 <script>
-    // === KONFIGURASI LINGKUNGAN CANVAS ===
-    let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
-
+    // === STATE GLOBAL ===
+    let apiKey = sessionStorage.getItem('sehati_api_key') || ""; // PERBAIKAN: let
+    let apiModel = localStorage.getItem('skgen_model') || "gemini-2.5-flash"; 
     let referenceText = ""; 
     
-    // Default Data State
     let menimbangItems = ["bahwa dalam rangka meningkatkan mutu pelayanan pada UPTD Puskesmas Percontohan, diperlukan tim khusus;"];
     let mengingatItems = ["Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;"];
     let memperhatikanItems = ["Pedoman Akreditasi Puskesmas dan Hasil Rapat Kerja Mutu;"];
-    let diktumItems = [
-        "Menetapkan Tim Peningkatan Mutu dan Keselamatan Pasien UPTD Puskesmas Percontohan.", 
-        "Susunan keanggotaan dan uraian tugas tercantum dalam Lampiran yang merupakan bagian tidak terpisahkan dari keputusan ini.", 
-        "Keputusan ini berlaku sejak tanggal ditetapkan dengan ketentuan apabila di kemudian hari terdapat kekeliruan akan diadakan perbaikan sebagaimana mestinya."
-    ];
+    let diktumItems = ["Menetapkan Tim Peningkatan Mutu.", "Susunan anggota tercantum dalam Lampiran."];
     let lampiranItems = [];
-    let toastTimeout;
 
-    // UPDATE STATUS INDIKATOR
+    // === LOGIKA API & INTEGRASI ===
     function updateSyncStatus() {
         const ind = document.getElementById('sync-indicator');
-        if (ind && userApiKey) {
+        const text = document.getElementById('text-status');
+        const dot = document.getElementById('dot-status');
+        const ping = document.getElementById('ping-status');
+        if (apiKey) {
             ind.className = "text-xs text-green-600 font-bold flex items-center gap-1.5 transition-opacity opacity-100";
-            ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> Koneksi AI Aktif`;
+            text.innerText = "AI Tersambung";
+            dot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-500";
+            ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
         }
     }
 
-    // FUNGSI SET API KEY MANUAL (TESTING)
-    function setManualKey() {
-        const keyInput = document.getElementById('manual-api-key').value.trim();
-        if(keyInput) {
-            userApiKey = keyInput;
-            sessionStorage.setItem('sehati_api_key', keyInput);
-            updateSyncStatus();
-            showToast("API Key Manual Berhasil Disimpan!", "success");
-        } else {
-            showToast("API Key tidak boleh kosong!", "error");
-        }
+    function toggleApiModal() { document.getElementById('api-modal').classList.toggle('hidden'); document.getElementById('api-modal').classList.toggle('opacity-100'); }
+    
+    function saveManualKey() { 
+        const inputKey = document.getElementById('input-api-key').value.trim();
+        const inputModel = document.getElementById('input-model').value.trim();
+        if(inputKey) { 
+            apiKey = inputKey; sessionStorage.setItem('sehati_api_key', apiKey); 
+            if(inputModel) { apiModel = inputModel; localStorage.setItem('skgen_model', apiModel); }
+            updateSyncStatus(); toggleApiModal(); showToast("Konfigurasi Berhasil!", "success"); 
+        } 
     }
 
-    // 1. UI CORE
-    function changeTab(tabId, btn) {
-        document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => {
-            b.classList.remove('nav-active', 'text-white');
-            b.classList.add('text-slate-300');
-        });
-        document.getElementById(tabId).classList.add('active');
-        btn.classList.add('nav-active', 'text-white');
-        btn.classList.remove('text-slate-300');
-        
-        document.getElementById('main-scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function zoomPaper(val) {
-        const container = document.getElementById('print-area');
-        const papers = container.querySelectorAll('.folio-paper, .lampiran-paper');
-        papers.forEach(p => {
-            p.style.transform = `scale(${val})`;
-            const marginAdjustment = (val - 1) * 160; 
-            p.style.marginBottom = `${marginAdjustment}px`;
-            p.style.marginTop = val < 1 ? `${(val - 1) * 140}px` : '0px';
-        });
-    }
-
-    function sync(field, val) {
-        document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val);
-        const indicator = document.getElementById('sync-indicator');
-        if (indicator && !userApiKey) {
-            indicator.style.opacity = 1;
-            setTimeout(() => indicator.style.opacity = 0, 1500);
-        }
-    }
-
-    function toggleMemperhatikan(checked) {
-        document.getElementById('doc-table-memperhatikan').style.display = checked ? 'table' : 'none';
-        renderKonsideranForm();
-    }
-
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('custom-toast');
-        const msgEl = document.getElementById('toast-message');
-        const iconEl = document.getElementById('toast-icon');
-        
-        clearTimeout(toastTimeout);
-        msgEl.innerText = message;
-        
-        if (type === 'error') {
-            toast.className = 'fixed bottom-6 right-6 px-5 py-3.5 rounded-xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 border bg-white border-red-200 text-red-700 translate-y-0 opacity-100 pointer-events-auto';
-            iconEl.innerText = '❌';
-        } else if (type === 'info') {
-            toast.className = 'fixed bottom-6 right-6 px-5 py-3.5 rounded-xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 border bg-white border-blue-200 text-blue-700 translate-y-0 opacity-100 pointer-events-auto';
-            iconEl.innerText = 'ℹ️';
-        } else {
-            toast.className = 'fixed bottom-6 right-6 px-5 py-3.5 rounded-xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 border bg-white border-green-200 text-green-700 translate-y-0 opacity-100 pointer-events-auto';
-            iconEl.innerText = '✅';
-        }
-        
-        toastTimeout = setTimeout(() => {
-            toast.style.transform = 'translateY(24px)';
-            toast.style.opacity = '0';
-            toast.style.pointerEvents = 'none';
-        }, 4000);
-    }
-
-    // 2. FILE PROCESSING
-    async function processFile(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        document.getElementById('file-name').innerText = "Memproses " + file.name + "...";
-        const statusEl = document.getElementById('file-status');
-        statusEl.classList.add('hidden');
-        
-        try {
-            if (file.type === "application/pdf") {
-                const reader = new FileReader();
-                reader.onload = async function() {
-                    try {
-                        const typedarray = new Uint8Array(this.result);
-                        const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
-                        let fullText = "";
-                        for(let i=1; i<=pdf.numPages; i++) {
-                            const page = await pdf.getPage(i);
-                            const content = await page.getTextContent();
-                            fullText += content.items.map(s => s.str).join(" ") + " ";
-                        }
-                        referenceText = fullText.substring(0, 15000); 
-                        document.getElementById('file-name').innerText = file.name;
-                        statusEl.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> PDF terbaca (${pdf.numPages} hal)`;
-                        statusEl.classList.remove('hidden');
-                        showToast("PDF berhasil diurai sebagai referensi.", "success");
-                    } catch (err) {
-                        showToast("Gagal membaca isi PDF.", "error");
-                        document.getElementById('file-name').innerText = "Gagal memproses file";
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            } else if (file.type === "text/plain") {
-                const reader = new FileReader();
-                reader.onload = function() { 
-                    referenceText = this.result.substring(0, 15000);
-                    document.getElementById('file-name').innerText = file.name;
-                    statusEl.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Teks terbaca`;
-                    statusEl.classList.remove('hidden');
-                    showToast("File teks berhasil dimuat.", "success");
-                };
-                reader.readAsText(file);
-            } else {
-                showToast("Format file tidak didukung. Gunakan PDF atau TXT.", "error");
-                document.getElementById('file-name').innerText = "Klik untuk Upload Referensi";
-            }
-        } catch (error) {
-            showToast("Terjadi kesalahan saat upload.", "error");
-        }
-    }
-
-    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH GROUNDING
     async function callGemini(prompt, schema) {
-        if (!userApiKey) {
-            showToast("API Key belum terhubung. Silakan paste di atas lalu klik KONEK.", "error");
-            if (window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
-            throw new Error("API Key kosong");
-        }
-
-        const modelId = "gemini-1.5-flash"; 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${userApiKey}`;
+        if (!apiKey) { showToast("API Key Kosong!", "error"); throw new Error("No Key"); }
+        const isLive = document.getElementById('chk-live') && document.getElementById('chk-live').checked;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${apiKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.1 }
         };
+        if (isLive) { payload.tools = [{ googleSearch: {} }]; } // Perbaikan sintaks Google Grounding
 
-        // CEK TOGGLE LIVE BROWSING
-        const chkLive = document.getElementById('chk-live-browsing');
-        if (chkLive && chkLive.checked) {
-            payload.tools = [{ googleSearch: {} }]; 
-        }
-
-        let retries = 3;
-        let delays = [1000, 2000, 4000];
-        let attempt = 0;
-
-        while (retries > 0) {
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!res.ok) {
-                    if (res.status === 400) throw new Error("Kunci API salah atau tidak valid.");
-                    if (res.status === 429) {
-                        if (window.parent !== window) window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
-                        throw new Error("RATE_LIMIT");
-                    }
-                    throw new Error(`HTTP Error ${res.status}`);
-                }
-                
-                const data = await res.json();
-                const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!textResponse) throw new Error("Format respons tidak valid dari AI.");
-                return JSON.parse(textResponse);
-            } catch (error) {
-                if (error.message.includes("Kunci API") || error.message.includes("RATE_LIMIT")) throw error;
-                
-                retries--;
-                if (retries === 0) throw error; 
-                await new Promise(resolve => setTimeout(resolve, delays[attempt]));
-                attempt++;
-            }
-        }
-    }
-
-    // === EDITING MANUAL KONSIDERAN ===
-    function renderKonsideranForm() {
-        const list = document.getElementById('konsideran-list');
-        const useMemperhatikan = document.getElementById('chk-memperhatikan').checked;
-        
-        const buildSection = (title, items, type) => {
-            let html = `
-            <div class="bg-white p-5 border border-slate-200 rounded-xl shadow-sm">
-                <div class="flex justify-between items-center mb-3">
-                    <label class="text-xs font-bold text-slate-600 uppercase tracking-wide">${title}</label>
-                    <button onclick="addKonsideranItem('${type}')" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition">+ Tambah Baris</button>
-                </div>
-                <div class="space-y-3">`;
-            
-            if (items.length === 0) html += `<p class="text-xs text-slate-400 italic">Belum ada data. Tambah manual atau generate AI.</p>`;
-
-            items.forEach((item, i) => {
-                const prefix = type === 'menimbang' ? String.fromCharCode(97+i)+'.' : (i+1)+'.';
-                html += `
-                <div class="flex gap-3 items-start group">
-                    <span class="text-xs font-bold text-slate-400 mt-2.5 w-4 shrink-0">${prefix}</span>
-                    <textarea class="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 min-h-[60px] custom-scroll bg-slate-50 focus:bg-white transition" oninput="updateKonsideranVal('${type}', ${i}, this.value)">${item}</textarea>
-                    <button onclick="delKonsideranItem('${type}', ${i})" class="text-slate-300 hover:text-red-500 mt-2.5 opacity-0 group-hover:opacity-100 transition" title="Hapus">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                </div>`;
-            });
-            html += `</div></div>`;
-            return html;
-        };
-
-        let html = buildSection('Menimbang', menimbangItems, 'menimbang');
-        html += buildSection('Mengingat', mengingatItems, 'mengingat');
-        if (useMemperhatikan) html += buildSection('Memperhatikan', memperhatikanItems, 'memperhatikan');
-
-        list.innerHTML = html;
-        renderKonsideranDocument();
-    }
-
-    function renderKonsideranDocument() {
-        const useMemperhatikan = document.getElementById('chk-memperhatikan').checked;
-        renderDocTable('menimbang', menimbangItems, 'Menimbang');
-        renderDocTable('mengingat', mengingatItems, 'Mengingat');
-        if (useMemperhatikan) renderDocTable('memperhatikan', memperhatikanItems, 'Memperhatikan');
-    }
-
-    function renderDocTable(type, data, label) {
-        const tbody = document.getElementById(`doc-tbody-${type}`);
-        if (!data || data.length === 0) { tbody.innerHTML = ''; return; }
-        
-        tbody.innerHTML = data.map((item, i) => `
-            <tr>
-                <td style="width:18%; font-weight:bold">${i === 0 ? label : ''}</td>
-                <td style="width:2%">${i === 0 ? ':' : ''}</td>
-                <td style="width:5%">${type === 'menimbang' ? String.fromCharCode(97 + i) + '.' : (i + 1) + '.'}</td>
-                <td style="text-align: justify">${item}</td>
-            </tr>
-        `).join('');
-    }
-
-    function updateKonsideranVal(type, i, val) {
-        if(type === 'menimbang') menimbangItems[i] = val;
-        else if(type === 'mengingat') mengingatItems[i] = val;
-        else if(type === 'memperhatikan') memperhatikanItems[i] = val;
-        renderDocTable(type, type==='menimbang'?menimbangItems:type==='mengingat'?mengingatItems:memperhatikanItems, type.charAt(0).toUpperCase() + type.slice(1));
-    }
-
-    function addKonsideranItem(type) {
-        if(type === 'menimbang') menimbangItems.push("...");
-        else if(type === 'mengingat') mengingatItems.push("...");
-        else if(type === 'memperhatikan') memperhatikanItems.push("...");
-        renderKonsideranForm();
-    }
-
-    function delKonsideranItem(type, i) {
-        if(type === 'menimbang') menimbangItems.splice(i, 1);
-        else if(type === 'mengingat') mengingatItems.splice(i, 1);
-        else if(type === 'memperhatikan') memperhatikanItems.splice(i, 1);
-        renderKonsideranForm();
-    }
-
-
-    // === EDITING MANUAL DIKTUM ===
-    function renderDiktumForm() {
-        const list = document.getElementById('diktum-list');
-        const romawi = ["KESATU", "KEDUA", "KETIGA", "KEEMPAT", "KELIMA", "KEENAM", "KETUJUH", "KEDELAPAN", "KESEMBILAN", "KESEPULUH"];
-        
-        list.innerHTML = diktumItems.map((d, i) => `
-            <div class="bg-white p-4 border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition relative group">
-                <div class="flex justify-between items-center mb-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Diktum ${romawi[i] || i+1}</label>
-                    <button onclick="delDiktumItem(${i})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" title="Hapus Diktum">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                </div>
-                <textarea class="w-full p-3 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-400 min-h-[80px] outline-none custom-scroll bg-slate-50 focus:bg-white transition" oninput="updateDiktumVal(${i}, this.value)">${d}</textarea>
-            </div>
-        `).join('');
-        
-        list.innerHTML += `
-            <div class="col-span-1 md:col-span-2">
-                <button onclick="addDiktumItem()" class="w-full py-4 bg-slate-50 border-2 border-dashed border-slate-300 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-100 hover:border-slate-400 transition">+ Tambah Poin Diktum</button>
-            </div>`;
-            
-        renderDiktumDocument();
-    }
-
-    function renderDiktumDocument() {
-        const tbody = document.getElementById('doc-tbody-diktum');
-        const romawi = ["KESATU", "KEDUA", "KETIGA", "KEEMPAT", "KELIMA", "KEENAM", "KETUJUH", "KEDELAPAN", "KESEMBILAN", "KESEPULUH"];
-        
-        let docHTML = `<tr><td style="width:18%; font-weight:bold">Menetapkan</td><td style="width:2%">:</td><td colspan="2"></td></tr>`;
-        docHTML += diktumItems.map((d, i) => `
-            <tr>
-                <td style="width:18%; font-weight:bold">${romawi[i] || i+1}</td>
-                <td style="width:2%">:</td>
-                <td colspan="2" style="text-align: justify">${d}</td>
-            </tr>
-        `).join('');
-        
-        tbody.innerHTML = docHTML;
-        
-        const hasLampiran = diktumItems.some(t => t.toLowerCase().includes('lampir'));
-        document.getElementById('alert-lamp').classList.toggle('hidden', !hasLampiran);
-    }
-
-    function updateDiktumVal(i, val) { 
-        diktumItems[i] = val; 
-        renderDiktumDocument(); 
-    }
-    
-    function addDiktumItem() {
-        diktumItems.push("...");
-        renderDiktumForm();
-    }
-
-    function delDiktumItem(i) {
-        diktumItems.splice(i, 1);
-        renderDiktumForm();
-    }
-
-
-    // === FUNGSI GENERATE AI ===
-    function getContextFasyankes() {
-        const instansi = document.getElementById('in-instansi').value;
-        const pemda = document.getElementById('in-pemda').value;
-        const tentang = document.getElementById('in-tentang').value;
-        return `Konteks Fasyankes: ${instansi} (${pemda}). \nTopik/Judul SK: ${tentang}.`;
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!res.ok) { throw new Error(`API Error (${res.status})`); }
+        const data = await res.json();
+        return JSON.parse(data.candidates[0].content.parts[0].text);
     }
 
     async function aiGenerate(mode) {
         const loader = document.getElementById(`loader-${mode}`);
         if(loader) loader.classList.remove('hidden');
-
-        const arahan = document.getElementById('in-legal-info').value;
-        const useMemperhatikan = document.getElementById('chk-memperhatikan').checked;
-        const fasyankesContext = getContextFasyankes();
-        
-        let refContext = referenceText ? `\nReferensi SK Lama/Acuan: ${referenceText}` : "";
+        const isLive = document.getElementById('chk-live').checked;
+        if(mode === 'legal') document.getElementById('loader-text-legal').innerText = isLive ? "Browsing Peraturan Terbaru..." : "Menyusun Landasan Hukum (Memori AI)...";
 
         try {
+            const ctx = `Instansi: ${document.getElementById('in-instansi').value}. Judul: ${document.getElementById('in-tentang').value}.`;
             if(mode === 'legal') {
-                const schema = { 
-                    type: "OBJECT", 
-                    properties: { 
-                        menimbang: { type: "ARRAY", items: { type: "STRING" } },
-                        mengingat: { type: "ARRAY", items: { type: "STRING" } },
-                        memperhatikan: { type: "ARRAY", items: { type: "STRING" } }
-                    },
-                    required: ["menimbang", "mengingat"]
-                };
-                
-                const chkLive = document.getElementById('chk-live-browsing');
-                const isLive = chkLive ? chkLive.checked : false;
-
-                const loaderText = document.getElementById('legal-loader-text');
-                if(loaderText) {
-                    loaderText.innerText = isLive ? "Browsing Aturan Terbaru di Google & Menyusun Landasan..." : "Menyusun Landasan Hukum dari Memori AI...";
-                }
-
-                let promptText = "";
-                if(isLive) {
-                    promptText = `Anda sedang menyusun konsideran Surat Keputusan (SK).\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nTUGAS PENTING: Gunakan fitur penelusuran web (Google Search) untuk mencari regulasi dan peraturan menteri kesehatan terbaru yang relevan dengan topik ini. Pastikan landasan hukum di bagian 'Mengingat' akurat dengan UU dan Peraturan Menteri yang berlaku saat ini.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
-                } else {
-                    promptText = `Anda Ahli Hukum Tata Negara dan Konsultan Manajemen Fasyankes.\nTUGAS: Buat konsideran Surat Keputusan (SK) Kepala Fasyankes.\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nSYARAT MUTLAK UNTUK "MENGINGAT":\n1. WAJIB mencantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan".\n2. Gunakan memori internal Anda untuk mencari Peraturan Menteri Kesehatan (PMK) terbaru yang relevan dengan topik SK ini.\n3. Urutkan hierarki dari UU, PP, Perpres, hingga PMK. JANGAN MENGARANG NOMOR UU/PMK PALSU.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
-                }
-
-                const res = await callGemini(promptText, schema);
-                
-                menimbangItems = res.menimbang || [];
-                mengingatItems = res.mengingat || [];
-                if (useMemperhatikan) memperhatikanItems = res.memperhatikan || [];
-                
+                const schema = { type:"OBJECT", properties:{ a:{type:"ARRAY", items:{type:"STRING"}}, b:{type:"ARRAY", items:{type:"STRING"}}, c:{type:"ARRAY", items:{type:"STRING"}} }, required:["a","b"] };
+                const res = await callGemini(`Susun Konsideran (Menimbang:a, Mengingat:b, Memperhatikan:c). WAJIB masukkan UU Kesehatan 17/2023. ${ctx}`, schema);
+                menimbangItems = res.a; mengingatItems = res.b; if(res.c) memperhatikanItems = res.c;
                 renderKonsideranForm();
-                showToast(isLive ? "Sintesis Live Google Search Berhasil" : "Sintesis Memori AI Berhasil", "success");
-                document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
-
-            } else if(mode === 'diktum') {
-                const schema = { 
-                    type: "OBJECT", 
-                    properties: { items: { type: "ARRAY", items: { type: "STRING" } } },
-                    required: ["items"]
-                };
-                
-                const contextKonsideran = `Bagian Menimbang: ${menimbangItems.join(' ')}. \nBagian Mengingat: ${mengingatItems.join(' ')}.`;
-                
-                const promptText = `Buatkan poin-poin DIKTUM (keputusan inti) untuk SK.\n${fasyankesContext}\n\nBerdasarkan landasan/konsideran berikut:\n${contextKonsideran}\n${refContext}\n\nSusun poin keputusannya dengan runut, spesifik merujuk ke nama fasyankes, dan aplikatif. TUGAS PENTING: JANGAN tuliskan kata penomoran seperti "KESATU:", "KEDUA:", atau angka "1.", "2." di awal kalimat. Langsung tuliskan isi keputusannya saja pada setiap elemen array.`;
-
-                const res = await callGemini(promptText, schema);
-                
-                const cleanItems = (res.items || []).map(item => {
-                    return item.replace(/^(KESATU|KEDUA|KETIGA|KEEMPAT|KELIMA|KEENAM|KETUJUH|KEDELAPAN|KESEMBILAN|KESEPULUH|\d+\.)\s*[:.-]?\s*/i, '').trim();
-                });
-
-                diktumItems = cleanItems;
-                renderDiktumForm();
-                showToast("Poin Diktum berhasil disusun merujuk ke Fasyankes & Konsideran", "success");
-                document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
+            } else {
+                const schema = { type:"OBJECT", properties:{ items:{type:"ARRAY", items:{type:"STRING"}} }, required:["items"] };
+                const res = await callGemini(`Buat poin diktum operasional fasyankes. ${ctx}`, schema);
+                diktumItems = res.items; renderDiktumForm();
             }
-        } catch(e) { 
-            showToast(e.message, "error");
-        } finally {
-            if(loader) loader.classList.add('hidden');
-        }
+            showToast("Berhasil!", "success");
+        } catch(e) { showToast(e.message, "error"); }
+        finally { if(loader) loader.classList.add('hidden'); }
     }
 
-    // === LAMPIRAN LOGIC DENGAN UPLOAD SPECIFIC & KONTEKS ===
-    function addLampiran() {
-        const id = Date.now();
-        lampiranItems.push({ 
-            id, 
-            judul: "SUSUNAN TIM", 
-            context: "",    
-            fileText: "",   
-            fileName: "",
-            headers: ["No", "Nama / Jabatan", "Peran dalam Tim", "Keterangan"], 
-            rows: [["1", "dr. Fulan", "Ketua Tim", "-"], ["2", "Suster Fulanah", "Sekretaris", "-"]] 
-        });
-        renderLampiranUI();
-        showToast("Lampiran baru ditambahkan", "info");
+    // === RENDERING & UI LOGIC (UTUH) ===
+    function changeTab(id, b) { document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(btn=>btn.classList.remove('nav-active','text-white')); b.classList.add('nav-active','text-white'); }
+    function zoomPaper(v) { document.querySelectorAll('.folio-paper, .lampiran-paper').forEach(p=>{p.style.transform=`scale(${v})`; p.style.marginBottom=`${(v-1)*160}px`;}); }
+    function sync(f, v) { document.querySelectorAll(`.doc-${f}`).forEach(el=>el.innerText=v); }
+    function toggleMemperhatikan(c) { document.getElementById('doc-table-memperhatikan').style.display=c?'table':'none'; renderKonsideranForm(); }
+    function showToast(m,t) { const el=document.getElementById('custom-toast'); document.getElementById('toast-message').innerText=m; el.className=`fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-2xl opacity-100 border bg-white ${t==='error'?'text-red-600 border-red-200':'text-green-600 border-green-200'}`; setTimeout(()=>el.style.opacity=0, 4000); }
+    
+    async function processFile(e) { 
+        const file = e.target.files[0]; if (!file) return;
+        document.getElementById('file-name').innerText = "Membaca " + file.name + "...";
+        const reader = new FileReader();
+        reader.onload = async function() {
+            if(file.type === "application/pdf"){
+                const pdf = await pdfjsLib.getDocument({data: new Uint8Array(this.result)}).promise;
+                let text = ""; for(let i=1; i<=pdf.numPages; i++){ const page = await pdf.getPage(i); const content = await page.getTextContent(); text += content.items.map(s => s.str).join(" ") + " "; }
+                referenceText = text.substring(0, 15000);
+            } else { referenceText = this.result.substring(0, 15000); }
+            showToast("Referensi Berhasil Dibaca", "success");
+        };
+        if(file.type === "application/pdf") reader.readAsArrayBuffer(file); else reader.readAsText(file);
     }
 
+    function renderDocTable(t, d, l) { document.getElementById(`doc-tbody-${t}`).innerHTML=d.map((it,i)=>`<tr><td style="width:18%; font-weight:bold">${i===0?l:''}</td><td style="width:2%">${i===0?':':''}</td><td style="width:5%">${t==='menimbang'?String.fromCharCode(97+i)+'.':(i+1)+'.'}</td><td style="text-align:justify">${it}</td></tr>`).join(''); }
+    function renderKonsideranForm() { renderDocTable('menimbang', menimbangItems, 'Menimbang'); renderDocTable('mengingat', mengingatItems, 'Mengingat'); if(document.getElementById('chk-memperhatikan').checked) renderDocTable('memperhatikan', memperhatikanItems, 'Memperhatikan'); }
+    function renderDiktumForm() { document.getElementById('doc-tbody-diktum').innerHTML = diktumItems.map((d,i)=>`<tr><td style="width:18%; font-weight:bold">${["KESATU","KEDUA","KETIGA","KEEMPAT","KELIMA"][i]||i+1}</td><td style="width:2%">:</td><td style="text-align:justify">${d}</td></tr>`).join(''); }
+    
+    function addLampiran() { lampiranItems.push({id:Date.now(), judul:"SUSUNAN TIM", headers:["No","Nama","Jabatan"], rows:[["1","Fulan","Ketua"]]}); renderLampiranUI(); }
     function renderLampiranUI() {
-        const list = document.getElementById('lampiran-list');
-        const container = document.getElementById('lampiran-container');
-        const romawi = n => ["I", "II", "III", "IV", "V", "VI"][n-1] || n;
-
         const instansi = document.getElementById('in-instansi').value;
         const nomor = document.getElementById('in-nomor').value;
         const tentang = document.getElementById('in-tentang').value;
+        const romawi = n => ["I","II","III","IV","V"][n-1]||n;
 
-        // Render UI Input
-        list.innerHTML = lampiranItems.map((l, i) => `
-            <div class="bg-white p-5 border border-slate-200 rounded-xl shadow-sm space-y-3 relative overflow-hidden group hover:shadow-md transition">
-                <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-                <div class="flex justify-between items-center pl-2">
-                    <span class="text-xs font-bold text-slate-700 uppercase bg-slate-100 px-2.5 py-1 rounded-md">Lampiran ${romawi(i+1)}</span>
-                    <button onclick="delLamp(${l.id})" class="text-slate-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition" title="Hapus Lampiran">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                </div>
-                
-                <div class="pl-2 space-y-3">
-                    <div>
-                        <label class="text-[10px] text-slate-500 font-bold mb-1 block uppercase tracking-wide">Judul Tabel / Lampiran</label>
-                        <input type="text" class="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 uppercase font-semibold bg-slate-50 focus:bg-white transition" value="${l.judul}" oninput="updateLampJudul(${l.id}, this.value)">
-                    </div>
-
-                    <div class="border-t border-slate-100 pt-3 mt-3">
-                        <label class="text-[10px] text-slate-500 font-bold mb-1 block uppercase tracking-wide">Instruksi Spesifik (Opsional)</label>
-                        <textarea class="w-full p-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 bg-slate-50 focus:bg-white transition custom-scroll min-h-[50px]" placeholder="Contoh: Buatkan 4 kolom terdiri dari Ketua, Sekretaris, dst..." oninput="updateLampContext(${l.id}, this.value)">${l.context || ''}</textarea>
-                        
-                        <div class="flex items-center gap-2 mt-2">
-                            <input type="file" id="upload-lamp-${l.id}" accept=".pdf,.txt" class="hidden" onchange="processLampiranFile(event, ${l.id})">
-                            <label for="upload-lamp-${l.id}" class="cursor-pointer text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-1.5 px-3 rounded flex items-center gap-1.5 transition">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                                <span class="truncate max-w-[150px] inline-block">${l.fileName || 'Upload PDF/TXT (Opsional)'}</span>
-                            </label>
-                            ${l.fileText ? '<span class="text-[10px] text-green-600 font-bold" title="File berhasil dibaca">✅</span>' : ''}
-                        </div>
-                    </div>
-                </div>
-
-                <button onclick="aiLamp(${l.id})" class="w-full py-3 mt-2 bg-blue-50 text-blue-700 text-xs font-bold rounded-xl border border-blue-100 transition hover:bg-blue-600 hover:text-white flex justify-center items-center gap-1.5 active:scale-[0.98]">
-                    <span>✨</span> Generate Tabel AI Berdasarkan Konteks
-                </button>
-            </div>
-        `).join('');
-
-        // Render Kertas Document
-        container.innerHTML = lampiranItems.map((l, i) => `
-            <div class="folio-paper lampiran-paper" contenteditable="true">
-                <table style="border:none; width: 100%; font-size: 10pt; margin-bottom: 20px;">
-                    <tr>
-                        <td style="width:15%; font-weight:bold;">LAMPIRAN ${romawi(i+1)}</td>
-                            <td style="width:2%">:</td>
-                            <td>KEPUTUSAN <span class="doc-jabatan uppercase">${instansi}</span></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:bold;">NOMOR</td>
-                            <td>:</td>
-                            <td><span class="doc-nomor">${nomor}</span></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:bold;">TENTANG</td>
-                            <td>:</td>
-                            <td class="uppercase"><span class="doc-tentang">${tentang}</span></td>
-                        </tr>
-                    </table>
-                    
-                    <h3 id="lamp-title-doc-${l.id}" class="font-bold mb-4 uppercase text-center" style="font-size: 11pt;">${l.judul}</h3>
-                    
-                    <table style="border: 1px solid black; width: 100%; border-collapse: collapse; font-size: 10pt;">
-                        <thead style="background:#f8fafc">
-                            <tr>${l.headers.map(h => `<th style="border:1px solid black; padding:8px 5px; text-align: center;">${h}</th>`).join('')}</tr>
-                        </thead>
-                        <tbody>
-                            ${l.rows.map(row => `<tr>${row.map(c => `<td style="border:1px solid black; padding:6px 5px; ${c==='1'||c==='2'||c==='3'||c==='4'||c==='5' ? 'text-align:center; width:5%;' : ''}">${c}</td>`).join('')}</tr>`).join('')}
-                        </tbody>
-                    </table>
-
-                    <div class="flex justify-end mt-12 page-break-inside-avoid">
-                        <div class="w-1/2 text-left" style="padding-left: 2.5rem;">
-                            <p class="font-bold mt-2 uppercase doc-jabatan">KEPALA UPTD PUSKESMAS<br>PERCONTOHAN,</p>
-                            <br><br><br>
-                            <p class="font-bold underline doc-kadis">dr. FULANAH, M.Kes</p>
-                            <p class="doc-nip">NIP. 19800101 200501 2 001</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-        sync('instansi', instansi);
-        sync('nomor', nomor);
-        sync('tentang', tentang);
+        document.getElementById('lampiran-list').innerHTML = lampiranItems.map((l,i) => `<div class="bg-white p-5 border rounded-xl mb-4 relative"><span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">Lampiran ${romawi(i+1)}</span><input class="w-full mt-2 p-2 border rounded font-bold" value="${l.judul}" oninput="lampiranItems[${i}].judul=this.value; renderLampiranUI()"><button onclick="lampiranItems.splice(${i},1); renderLampiranUI()" class="text-red-500 text-xs mt-2">Hapus</button></div>`).join('');
+        document.getElementById('lampiran-container').innerHTML = lampiranItems.map((l,i) => `<div class="folio-paper lampiran-paper" contenteditable="true"><table style="width:100%"><tr><td style="width:15%; font-weight:bold">LAMPIRAN ${romawi(i+1)}</td><td>: KEPUTUSAN KEPALA ${instansi}</td></tr><tr><td>NOMOR</td><td>: ${nomor}</td></tr><tr><td>TENTANG</td><td>: ${tentang}</td></tr></table><h3 class="font-bold text-center mt-6 uppercase">${l.judul}</h3><table class="mt-4" style="border:1px solid black; width:100%"><thead style="background:#f8fafc"><tr>${l.headers.map(h=>`<th style="border:1px solid black; padding:5px">${h}</th>`).join('')}</tr></thead><tbody>${l.rows.map(r=>`<tr>${r.map(c=>`<td style="border:1px solid black; padding:5px">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`).join('');
     }
 
-    function updateLampJudul(id, val) { 
-        const item = lampiranItems.find(x => x.id === id);
-        if (item) item.judul = val; 
-        const docTitleEl = document.getElementById(`lamp-title-doc-${id}`);
-        if (docTitleEl) docTitleEl.innerText = val;
+    window.onload = () => {
+        if(window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        window.addEventListener('message', e => { if(e.data.type==='UPDATE_API_KEY'){ apiKey=e.data.key; sessionStorage.setItem('sehati_api_key', apiKey); updateSyncStatus(); }});
+        updateSyncStatus(); renderKonsideranForm(); renderDiktumForm();
     }
-
-    function updateLampContext(id, val) {
-        const item = lampiranItems.find(x => x.id === id);
-        if (item) item.context = val; 
-    }
-
-    async function processLampiranFile(e, id) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const l = lampiranItems.find(x => x.id === id);
-        l.fileName = "Membaca " + file.name + "...";
-        renderLampiranUI();
-        
-        try {
-            if (file.type === "application/pdf") {
-                const reader = new FileReader();
-                reader.onload = async function() {
-                    const typedarray = new Uint8Array(this.result);
-                    const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
-                    let fullText = "";
-                    for(let i=1; i<=pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const content = await page.getTextContent();
-                        fullText += content.items.map(s => s.str).join(" ") + " ";
-                    }
-                    l.fileText = fullText.substring(0, 10000); 
-                    l.fileName = file.name;
-                    showToast("Referensi khusus lampiran berhasil dibaca.", "success");
-                    renderLampiranUI();
-                };
-                reader.readAsArrayBuffer(file);
-            } else if (file.type === "text/plain") {
-                const reader = new FileReader();
-                reader.onload = function() { 
-                    l.fileText = this.result.substring(0, 10000);
-                    l.fileName = file.name;
-                    showToast("Referensi teks lampiran berhasil dimuat.", "success");
-                    renderLampiranUI();
-                };
-                reader.readAsText(file);
-            }
-        } catch (error) {
-            l.fileName = "Gagal memproses file";
-            renderLampiranUI();
-            showToast("Gagal membaca referensi lampiran.", "error");
-        }
-    }
-
-    async function aiLamp(id) {
-        const l = lampiranItems.find(x => x.id === id);
-        showToast("AI sedang menganalisis file & merancang tabel...", "info");
-        
-        try {
-            const schema = { 
-                type: "OBJECT", 
-                properties: { 
-                    headers: { type: "ARRAY", items: { type: "STRING" } }, 
-                    rows: { 
-                        type: "ARRAY", 
-                        items: { 
-                            type: "OBJECT",
-                            properties: {
-                                cells: { type: "ARRAY", items: { type: "STRING" } }
-                            },
-                            required: ["cells"]
-                        } 
-                    } 
-                },
-                required: ["headers", "rows"]
-            };
-            
-            const fasyankesContext = getContextFasyankes();
-            const contextDiktum = `Keputusan/Diktum SK terkait: ${diktumItems.join(' ')}`;
-            
-            let specificContext = "";
-            if (l.context) specificContext += `\nInstruksi Khusus dari Pengguna: ${l.context}`;
-            if (l.fileText) specificContext += `\nReferensi Dokumen Khusus Lampiran Ini (Ekstrak tabel/data dari sini): ${l.fileText}`;
-            
-            const promptText = `Buatkan tabel terstruktur untuk lampiran SK.\n${fasyankesContext}\nJudul Lampiran: ${l.judul}.\n${contextDiktum}${specificContext}\n\nTUGAS: Buatkan kolom header yang relevan. Jika pengguna menyertakan referensi dokumen khusus, prioritaskan untuk mengekstrak data dari dokumen tersebut ke dalam tabel. Jika tidak ada, buatkan baris contoh logis berdasarkan fasyankes tersebut.`;
-
-            const res = await callGemini(promptText, schema);
-            l.headers = res.headers; 
-            l.rows = res.rows.map(row => row.cells || []);
-            
-            renderLampiranUI();
-            showToast("Tabel lampiran berhasil disusun secara cerdas", "success");
-            document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
-        } catch(e) {
-            showToast("Gagal membuat tabel AI: " + e.message, "error");
-        }
-    }
-
-    function delLamp(id) { 
-        lampiranItems = lampiranItems.filter(x => x.id !== id); 
-        renderLampiranUI(); 
-        showToast("Lampiran dihapus", "info");
-    }
-
-    // === INISIALISASI & INTEGRASI PORTAL ===
-    window.addEventListener('DOMContentLoaded', () => { 
-        // 1. Minta kunci ke Dashboard
-        if (window.parent !== window) {
-            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
-        }
-        
-        // 2. Cek URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyFromUrl = urlParams.get('key');
-        if (keyFromUrl) {
-            userApiKey = keyFromUrl;
-            sessionStorage.setItem('sehati_api_key', userApiKey);
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
-            updateSyncStatus();
-        } else if (userApiKey) {
-            updateSyncStatus();
-        }
-
-        // 3. Listener rotasi kunci
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'UPDATE_API_KEY') {
-                userApiKey = event.data.key;
-                sessionStorage.setItem('sehati_api_key', userApiKey);
-                updateSyncStatus();
-                if (keyFromUrl !== event.data.key) {
-                    showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
-                }
-            }
-        });
-
-        // 4. Render UI
-        renderKonsideranForm();
-        renderDiktumForm(); 
-        renderLampiranUI(); 
-        
-        sync('pemda', document.getElementById('in-pemda').value);
-        sync('instansi', document.getElementById('in-instansi').value);
-        sync('nomor', document.getElementById('in-nomor').value);
-        sync('tentang', document.getElementById('in-tentang').value);
-    });
 </script>
 </body>
 </html>
