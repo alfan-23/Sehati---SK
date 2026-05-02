@@ -77,13 +77,14 @@
             </div>
             
             <div class="flex items-center gap-6">
-                <div id="sync-indicator" class="text-xs text-green-600 font-medium flex items-center gap-1.5 opacity-0 transition-opacity">
+                <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity">
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </span>
-                    Tersinkronisasi
+                    Koneksi AI Terputus
                 </div>
+
                 <div class="w-px h-6 bg-slate-200"></div>
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">Zoom</span>
@@ -313,9 +314,7 @@
 
 <script>
     // === INTEGRASI PORTAL SEHATI - AI ===
-    // Modifikasi: Ambil kunci dari Portal secara dinamis
     let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
-
     let referenceText = ""; 
     
     // Default Data State
@@ -330,25 +329,45 @@
     let lampiranItems = [];
     let toastTimeout;
 
-    // Modifikasi: Inisialisasi Integrasi saat halaman dimuat
+    // UPDATE STATUS INDIKATOR
+    function updateSyncStatus() {
+        const ind = document.getElementById('sync-indicator');
+        if (userApiKey) {
+            ind.className = "text-xs text-green-600 font-bold flex items-center gap-1.5 transition-opacity opacity-100";
+            ind.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Koneksi Aktif`;
+        }
+    }
+
+    // Init & Integrasi Portal
     window.addEventListener('DOMContentLoaded', () => { 
-        // Tangkap API Key dari URL jika dibuka melalui Dashboard
+        // 1. Minta kunci langsung ke Dashboard jika berada di dalam Iframe (Taktik Berteriak)
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        }
+
+        // 2. Cek Parameter URL jika Dashboard gagal memberikan lewat pesan
         const urlParams = new URLSearchParams(window.location.search);
         const keyFromUrl = urlParams.get('key');
         if (keyFromUrl) {
             userApiKey = keyFromUrl;
             sessionStorage.setItem('sehati_api_key', userApiKey);
-            // Bersihkan URL agar tidak mengekspos kunci di bilah alamat
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+            updateSyncStatus();
+        } else if (userApiKey) {
+            updateSyncStatus();
         }
 
-        // Modifikasi: Pendengar Pesan dari Dashboard untuk rotasi kunci cadangan otomatis
+        // 3. Pendengar Pesan (Menerima Suntikan Kunci dari Dashboard)
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'UPDATE_API_KEY') {
                 userApiKey = event.data.key;
                 sessionStorage.setItem('sehati_api_key', userApiKey);
-                showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
+                updateSyncStatus();
+                // Hanya munculkan notifikasi jika ini pergantian kunci (bukan inisialisasi awal)
+                if (keyFromUrl !== event.data.key) {
+                    showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
+                }
             }
         });
 
@@ -390,9 +409,6 @@
 
     function sync(field, val) {
         document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val);
-        const indicator = document.getElementById('sync-indicator');
-        indicator.style.opacity = 1;
-        setTimeout(() => indicator.style.opacity = 0, 1500);
     }
 
     function toggleMemperhatikan(checked) {
@@ -478,8 +494,7 @@
         }
     }
 
-    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH
-    // Modifikasi: Menggunakan model 1.5-flash untuk kecepatan dan integrasi pelaporan limit
+    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH GROUNDING
     async function callGemini(prompt, schema) {
         if (!userApiKey) {
             showToast("API Key belum terhubung dengan Portal Dashboard.", "error");
@@ -491,7 +506,8 @@
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ google_search: {} }], // Grounding Aktif
+            // PERBAIKAN: Sintaks resmi Google Search Grounding untuk model terbaru
+            tools: [{ googleSearch: {} }], 
             generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.2 }
         };
 
@@ -508,7 +524,6 @@
                 });
                 
                 if (!res.ok) {
-                    // Modifikasi: Laporkan limit kuota ke Dashboard
                     if (res.status === 429) {
                         window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
                         throw new Error("RATE_LIMIT");
