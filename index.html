@@ -313,6 +313,7 @@
 
 <script>
     // === INTEGRASI PORTAL SEHATI - AI ===
+    // Modifikasi: Ambil kunci dari Portal secara dinamis
     let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
 
     let referenceText = ""; 
@@ -329,19 +330,20 @@
     let lampiranItems = [];
     let toastTimeout;
 
-    // Init & Integrasi Portal
+    // Modifikasi: Inisialisasi Integrasi saat halaman dimuat
     window.addEventListener('DOMContentLoaded', () => { 
-        // Tangkap API Key dari URL jika dibuka via Dashboard
+        // Tangkap API Key dari URL jika dibuka melalui Dashboard
         const urlParams = new URLSearchParams(window.location.search);
         const keyFromUrl = urlParams.get('key');
         if (keyFromUrl) {
             userApiKey = keyFromUrl;
             sessionStorage.setItem('sehati_api_key', userApiKey);
+            // Bersihkan URL agar tidak mengekspos kunci di bilah alamat
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.history.replaceState({path: cleanUrl}, '', cleanUrl);
         }
 
-        // Pendengar Pesan dari Dashboard (Suntikan Senyap Anti Hilang Sesi)
+        // Modifikasi: Pendengar Pesan dari Dashboard untuk rotasi kunci cadangan otomatis
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'UPDATE_API_KEY') {
                 userApiKey = event.data.key;
@@ -477,6 +479,7 @@
     }
 
     // 3. AI LOGIC & API DENGAN GOOGLE SEARCH
+    // Modifikasi: Menggunakan model 1.5-flash untuk kecepatan dan integrasi pelaporan limit
     async function callGemini(prompt, schema) {
         if (!userApiKey) {
             showToast("API Key belum terhubung dengan Portal Dashboard.", "error");
@@ -488,7 +491,7 @@
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ google_search: {} }], // Live Grounding Aktif
+            tools: [{ google_search: {} }], // Grounding Aktif
             generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.2 }
         };
 
@@ -505,6 +508,7 @@
                 });
                 
                 if (!res.ok) {
+                    // Modifikasi: Laporkan limit kuota ke Dashboard
                     if (res.status === 429) {
                         window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
                         throw new Error("RATE_LIMIT");
