@@ -73,7 +73,7 @@
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1.01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">v4.5 (Context & Smart Lampiran)</span></h1>
+                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">Terintegrasi Portal SEHATI</span></h1>
             </div>
             
             <div class="flex items-center gap-6">
@@ -312,8 +312,8 @@
     </div>
 
 <script>
-    // === KONFIGURASI LINGKUNGAN CANVAS ===
-    const apiKey = ""; 
+    // === INTEGRASI PORTAL SEHATI - AI ===
+    let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
 
     let referenceText = ""; 
     
@@ -328,6 +328,38 @@
     ];
     let lampiranItems = [];
     let toastTimeout;
+
+    // Init & Integrasi Portal
+    window.addEventListener('DOMContentLoaded', () => { 
+        // Tangkap API Key dari URL jika dibuka via Dashboard
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyFromUrl = urlParams.get('key');
+        if (keyFromUrl) {
+            userApiKey = keyFromUrl;
+            sessionStorage.setItem('sehati_api_key', userApiKey);
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+        }
+
+        // Pendengar Pesan dari Dashboard (Suntikan Senyap Anti Hilang Sesi)
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'UPDATE_API_KEY') {
+                userApiKey = event.data.key;
+                sessionStorage.setItem('sehati_api_key', userApiKey);
+                showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
+            }
+        });
+
+        // Render Awal UI
+        renderKonsideranForm();
+        renderDiktumForm(); 
+        renderLampiranUI(); 
+        
+        sync('pemda', document.getElementById('in-pemda').value);
+        sync('instansi', document.getElementById('in-instansi').value);
+        sync('nomor', document.getElementById('in-nomor').value);
+        sync('tentang', document.getElementById('in-tentang').value);
+    });
 
     // 1. UI CORE
     function changeTab(tabId, btn) {
@@ -446,17 +478,22 @@
 
     // 3. AI LOGIC & API DENGAN GOOGLE SEARCH
     async function callGemini(prompt, schema) {
-        const modelId = "gemini-2.5-flash-preview-09-2025";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+        if (!userApiKey) {
+            showToast("API Key belum terhubung dengan Portal Dashboard.", "error");
+            throw new Error("API Key kosong");
+        }
+
+        const modelId = "gemini-1.5-flash"; 
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${userApiKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
             tools: [{ google_search: {} }], // Live Grounding Aktif
-            generationConfig: { responseMimeType: "application/json", responseSchema: schema }
+            generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.2 }
         };
 
-        let retries = 5;
-        let delays = [1000, 2000, 4000, 8000, 16000];
+        let retries = 3;
+        let delays = [1000, 2000, 4000];
         let attempt = 0;
 
         while (retries > 0) {
@@ -467,12 +504,22 @@
                     body: JSON.stringify(payload)
                 });
                 
-                if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+                if (!res.ok) {
+                    if (res.status === 429) {
+                        window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+                        throw new Error("RATE_LIMIT");
+                    }
+                    throw new Error(`HTTP Error ${res.status}`);
+                }
+                
                 const data = await res.json();
                 const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!textResponse) throw new Error("Format respons tidak valid dari AI.");
                 return JSON.parse(textResponse);
             } catch (error) {
+                if (error.message === "RATE_LIMIT" && attempt === 2) {
+                    throw new Error("Kuota API habis. Dashboard sedang memutar kunci...");
+                }
                 retries--;
                 if (retries === 0) throw error; 
                 await new Promise(resolve => setTimeout(resolve, delays[attempt]));
@@ -674,12 +721,10 @@
                 
                 const contextKonsideran = `Bagian Menimbang: ${menimbangItems.join(' ')}. \nBagian Mengingat: ${mengingatItems.join(' ')}.`;
                 
-                // PERBAIKAN 1: Instruksi ketat agar AI tidak menambahkan awalan diktum
                 const promptText = `Buatkan poin-poin DIKTUM (keputusan inti) untuk SK.\n${fasyankesContext}\n\nBerdasarkan landasan/konsideran berikut:\n${contextKonsideran}\n${refContext}\n\nSusun poin keputusannya dengan runut, spesifik merujuk ke nama fasyankes, dan aplikatif. TUGAS PENTING: JANGAN tuliskan kata penomoran seperti "KESATU:", "KEDUA:", atau angka "1.", "2." di awal kalimat. Langsung tuliskan isi keputusannya saja pada setiap elemen array.`;
 
                 const res = await callGemini(promptText, schema);
                 
-                // PERBAIKAN 1 (Safety Net): Filter regex jika AI bandel masih menyertakan KESATU: dll
                 const cleanItems = (res.items || []).map(item => {
                     return item.replace(/^(KESATU|KEDUA|KETIGA|KEEMPAT|KELIMA|KEENAM|KETUJUH|KEDELAPAN|KESEMBILAN|KESEPULUH|\d+\.)\s*[:.-]?\s*/i, '').trim();
                 });
@@ -690,7 +735,7 @@
                 document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
             }
         } catch(e) { 
-            showToast("Gagal memproses AI: " + e.message, "error");
+            showToast(e.message, "error");
         } finally {
             if(loader) loader.classList.add('hidden');
         }
@@ -702,8 +747,8 @@
         lampiranItems.push({ 
             id, 
             judul: "SUSUNAN TIM", 
-            context: "",    // Input Manual Opsional untuk Lampiran
-            fileText: "",   // PDF referensi khusus Lampiran
+            context: "",    
+            fileText: "",   
             fileName: "",
             headers: ["No", "Nama / Jabatan", "Peran dalam Tim", "Keterangan"], 
             rows: [["1", "dr. Fulan", "Ketua Tim", "-"], ["2", "Suster Fulanah", "Sekretaris", "-"]] 
@@ -807,7 +852,6 @@
         sync('tentang', tentang);
     }
 
-    // FOKUS INPUT TERJAGA
     function updateLampJudul(id, val) { 
         const item = lampiranItems.find(x => x.id === id);
         if (item) item.judul = val; 
@@ -818,10 +862,8 @@
     function updateLampContext(id, val) {
         const item = lampiranItems.find(x => x.id === id);
         if (item) item.context = val; 
-        // Tidak perlu re-render karena ini hanya merubah state instruksi internal
     }
 
-    // PROSES FILE KHUSUS LAMPIRAN
     async function processLampiranFile(e, id) {
         const file = e.target.files[0];
         if (!file) return;
@@ -842,7 +884,7 @@
                         const content = await page.getTextContent();
                         fullText += content.items.map(s => s.str).join(" ") + " ";
                     }
-                    l.fileText = fullText.substring(0, 10000); // Ambil maks 10rb karakter
+                    l.fileText = fullText.substring(0, 10000); 
                     l.fileName = file.name;
                     showToast("Referensi khusus lampiran berhasil dibaca.", "success");
                     renderLampiranUI();
@@ -891,7 +933,6 @@
             const fasyankesContext = getContextFasyankes();
             const contextDiktum = `Keputusan/Diktum SK terkait: ${diktumItems.join(' ')}`;
             
-            // GABUNGKAN SEMUA KONTEKS SPESIFIK LAMPIRAN
             let specificContext = "";
             if (l.context) specificContext += `\nInstruksi Khusus dari Pengguna: ${l.context}`;
             if (l.fileText) specificContext += `\nReferensi Dokumen Khusus Lampiran Ini (Ekstrak tabel/data dari sini): ${l.fileText}`;
@@ -914,18 +955,6 @@
         lampiranItems = lampiranItems.filter(x => x.id !== id); 
         renderLampiranUI(); 
         showToast("Lampiran dihapus", "info");
-    }
-
-    // Init
-    window.onload = () => { 
-        renderKonsideranForm();
-        renderDiktumForm(); 
-        renderLampiranUI(); 
-        
-        sync('pemda', document.getElementById('in-pemda').value);
-        sync('instansi', document.getElementById('in-instansi').value);
-        sync('nomor', document.getElementById('in-nomor').value);
-        sync('tentang', document.getElementById('in-tentang').value);
     }
 </script>
 </body>
