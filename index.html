@@ -48,6 +48,7 @@
         .custom-scroll::-webkit-scrollbar { width: 8px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
         .tab-panel { display: none; }
         .tab-panel.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -59,13 +60,21 @@
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1.01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">v4.5 Standalone</span></h1>
+                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">v4.5 PRO</span></h1>
             </div>
             <div class="flex items-center gap-6">
                 <button onclick="toggleApiModal()" class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-300 hover:bg-slate-200 px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     PENGATURAN API KEY
                 </button>
+                <div class="w-px h-6 bg-slate-200"></div>
+                <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity opacity-100">
+                    <span class="relative flex h-2 w-2">
+                        <span id="ping-status" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span id="dot-status" class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                    <span id="text-status">AI Terputus</span>
+                </div>
                 <div class="w-px h-6 bg-slate-200"></div>
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">Zoom</span>
@@ -117,7 +126,7 @@
                                 </div>
                                 <div>
                                     <label class="text-[11px] font-bold text-slate-600">Judul SK (Tentang)</label>
-                                    <textarea id="in-tentang" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase min-h-[90px]" oninput="sync('tentang', this.value)">PEMBENTUKAN TIM PENINGKATAN MUTU</textarea>
+                                    <textarea id="in-tentang" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase min-h-[90px]" oninput="sync('tentang', this.value)">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</textarea>
                                 </div>
                             </div>
                         </div>
@@ -136,41 +145,55 @@
 
                 <div id="tab-legal" class="tab-panel">
                     <div class="max-w-3xl mx-auto space-y-6">
-                        <textarea id="in-legal-info" class="w-full border border-indigo-200 rounded-xl p-4 text-sm min-h-[80px]" placeholder="Arahan AI Opsional: Rujuk PMK No 11..."></textarea>
-                        
-                        <div class="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-xl">
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5">
+                            <label class="block text-sm font-bold text-indigo-800 mb-2">Arahan Khusus AI</label>
+                            <textarea id="in-legal-info" class="w-full border border-indigo-200 rounded-xl p-4 text-sm min-h-[100px]" placeholder="Contoh: Rujuk PMK No 11, Pastikan cantumkan UU Kesehatan No 17 Tahun 2023..."></textarea>
+                            
+                            <div class="flex items-center gap-3 mt-4 pt-4 border-t border-indigo-200 cursor-pointer" onclick="document.getElementById('chk-live').click()">
+                                <input type="checkbox" id="chk-live" class="w-5 h-5 accent-indigo-600 cursor-pointer" onclick="event.stopPropagation()">
+                                <div class="flex flex-col select-none">
+                                    <label class="text-sm font-bold text-indigo-800 cursor-pointer">Aktifkan Live Browsing (Google Search)</label>
+                                    <span class="text-[10px] text-slate-500">Centang jika butuh mencari regulasi terbaru secara online. Hilangkan centang jika koneksi macet.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                             <input type="checkbox" id="chk-memperhatikan" class="w-5 h-5 text-blue-600 rounded" onchange="toggleMemperhatikan(this.checked)" checked>
                             <label class="text-sm font-semibold text-slate-700">Sertakan "Memperhatikan"</label>
                         </div>
 
-                        <button onclick="aiGenerate('legal')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-transform active:scale-[0.98]">
+                        <button onclick="aiGenerate('legal')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-transform active:scale-[0.98] shadow-lg">
                             GENERATE KONSIDERAN (AI)
                         </button>
                         
-                        <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl border border-slate-100 shadow-inner">
                             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            <p class="text-xs text-slate-500 mt-3 font-bold">Memproses dengan Gemini AI...</p>
+                            <p id="loader-text-legal" class="text-xs text-slate-500 mt-3 font-bold animate-pulse">Memproses dengan Gemini AI...</p>
                         </div>
+                        
                         <div id="konsideran-list" class="space-y-6 mt-6"></div>
                     </div>
                 </div>
 
                 <div id="tab-diktum" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-6">
-                        <button onclick="aiGenerate('diktum')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-transform active:scale-[0.98]">
+                        <button onclick="aiGenerate('diktum')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-transform active:scale-[0.98] shadow-lg">
                             GENERATE POIN DIKTUM (AI)
                         </button>
-                        <div id="loader-diktum" class="hidden text-center py-6 bg-slate-50 rounded-xl">
+                        
+                        <div id="loader-diktum" class="hidden text-center py-6 bg-slate-50 rounded-xl border border-slate-100 shadow-inner">
                             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                            <p class="text-xs text-slate-500 mt-3 font-bold">Memproses Diktum...</p>
+                            <p class="text-xs text-slate-500 mt-3 font-bold animate-pulse">Merancang Poin Keputusan...</p>
                         </div>
+                        
                         <div id="diktum-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
                     </div>
                 </div>
 
                 <div id="tab-lampiran" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-6">
-                        <button onclick="addLampiran()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-xl font-bold">
+                        <button onclick="addLampiran()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-xl font-bold transition-all shadow-sm">
                             + TAMBAH LEMBAR LAMPIRAN BARU
                         </button>
                         <div id="lampiran-list" class="grid grid-cols-1 gap-6"></div>
@@ -187,29 +210,26 @@
                 <div id="print-area" class="w-full flex flex-col items-center gap-12 pb-10">
                     <div class="folio-paper" contenteditable="true" spellcheck="false" id="preview-paper">
                         <div class="kop-surat">
-                            <h2 class="uppercase doc-pemda" style="font-size: 14pt; font-weight: bold;">PEMERINTAH KABUPATEN CONTOH</h2>
-                            <h1 class="uppercase doc-instansi" style="font-size: 18pt; font-weight: bold;">UPTD PUSKESMAS PERCONTOHAN</h1>
-                            <p class="text-center doc-alamat" style="font-size: 9pt;">Jalan Kesehatan No. 1, Kecamatan Sehat, Kabupaten Contoh 12345</p>
+                            <h2 class="uppercase doc-pemda font-bold" style="font-size: 14pt;">PEMERINTAH KABUPATEN CONTOH</h2>
+                            <h1 class="uppercase doc-instansi font-bold" style="font-size: 18pt;">UPTD PUSKESMAS PERCONTOHAN</h1>
                         </div>
-
                         <div class="text-center mb-8">
                             <p class="font-bold">KEPUTUSAN <span class="doc-jabatan uppercase">KEPALA UPTD PUSKESMAS PERCONTOHAN</span></p>
                             <p>Nomor: <span class="doc-nomor font-bold">440/001/SK-PKM/2026</span></p>
                             <br>
                             <p class="font-bold uppercase">TENTANG</p>
-                            <p class="font-bold uppercase doc-tentang" style="max-width: 80%; margin: 0 auto;">PEMBENTUKAN TIM PENINGKATAN MUTU</p>
+                            <p class="font-bold uppercase doc-tentang" style="max-width: 80%; margin: 0 auto;">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</p>
                             <br>
                             <p class="font-bold uppercase"><span class="doc-jabatan">KEPALA UPTD PUSKESMAS PERCONTOHAN</span>,</p>
                         </div>
-
                         <table style="border:none"><tbody id="doc-tbody-menimbang"></tbody></table>
                         <table style="border:none"><tbody id="doc-tbody-mengingat"></tbody></table>
                         <table id="doc-table-memperhatikan" style="border:none"><tbody id="doc-tbody-memperhatikan"></tbody></table>
-
+                        
                         <div class="text-center font-bold mb-4 mt-6">MEMUTUSKAN:</div>
-
+                        
                         <table style="border:none"><tbody id="doc-tbody-diktum"></tbody></table>
-
+                        
                         <div class="flex justify-end mt-12 page-break-inside-avoid">
                             <div class="w-1/2 text-left" style="padding-left: 2.5rem;">
                                 <p>Ditetapkan di <span class="doc-tempat">Kabupaten Contoh</span><br>pada tanggal <span class="doc-tanggal">2 Januari 2026</span></p>
@@ -220,7 +240,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="lampiran-container" class="w-full flex flex-col items-center gap-12"></div>
                 </div>
             </div>
@@ -228,55 +247,50 @@
         </div>
     </main>
 
-    <div id="custom-toast" class="fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 border pointer-events-none bg-white">
+    <div id="custom-toast" class="fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 border pointer-events-none bg-white">
         <span id="toast-icon" class="text-xl"></span>
-        <span id="toast-message" class="text-sm font-medium"></span>
+        <span id="toast-message" class="text-sm font-bold"></span>
     </div>
 
-    <div id="api-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 transform scale-95 transition-transform duration-300" id="api-modal-content">
+    <div id="api-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 transform scale-95 transition-transform duration-300" id="api-modal-content">
             <h3 class="text-xl font-bold text-slate-800 mb-2 border-b pb-3">Pengaturan Gemini API Key</h3>
-            <p class="text-sm text-slate-600 mb-4">Aplikasi ini membutuhkan API Key gratis dari Google AI Studio untuk beroperasi secara mandiri di komputer Anda.</p>
+            <p class="text-sm text-slate-600 mb-6">Aplikasi ini membutuhkan API Key dari Google AI Studio untuk beroperasi.</p>
             
             <div class="space-y-4">
-                <div class="p-4 border border-blue-400 bg-blue-50/30 rounded-xl">
+                <div class="p-5 border border-blue-200 bg-blue-50/50 rounded-xl">
                     <label class="text-sm font-bold text-slate-800 block mb-2">API Key Anda:</label>
                     <input type="password" id="input-api-1" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Paste API Key di sini (AIzaSy...)">
                     
-                    <label class="text-sm font-bold text-slate-800 block mt-4 mb-2">Model AI (Pilih atau Ketik Manual):</label>
+                    <label class="text-sm font-bold text-slate-800 block mt-5 mb-2">Model AI (Otomatis / Ketik Manual):</label>
                     <input type="text" id="input-model" list="model-options" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: gemini-2.5-flash">
                     <datalist id="model-options">
                         <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                         <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                        <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
-                        <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
-                        <option value="gemini-pro">Gemini Pro (Legacy)</option>
                     </datalist>
                     
-                    <button onclick="testApiKey()" class="mt-4 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Test Koneksi
+                    <button onclick="testApiKey()" class="mt-5 w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Uji Koneksi
                     </button>
-                    <p id="test-result" class="text-xs font-bold mt-2 text-center hidden"></p>
+                    <p id="test-result" class="text-xs font-bold mt-3 text-center hidden"></p>
                 </div>
             </div>
 
-            <div class="mt-6 flex gap-3">
-                <button onclick="toggleApiModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Batal / Tutup</button>
-                <button onclick="saveApiKeys()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold">Simpan API Key</button>
+            <div class="mt-8 flex gap-4">
+                <button onclick="toggleApiModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition">Batal / Tutup</button>
+                <button onclick="saveApiKeys()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition">Simpan API Key</button>
             </div>
         </div>
     </div>
 
 <script>
-    // === KONFIGURASI STATE ===
-    let userApiKey = ""; 
-    let userModel = "gemini-2.5-flash"; 
+    // === STATE GLOBAL ===
+    let apiKey = ""; 
+    let apiModel = "gemini-2.5-flash"; 
     let referenceText = ""; 
     let toastTimeout;
     
-    // Data Default
     let menimbangItems = ["bahwa dalam rangka meningkatkan mutu pelayanan pada UPTD Puskesmas Percontohan, diperlukan tim khusus;"];
     let mengingatItems = ["Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;"];
     let memperhatikanItems = ["Pedoman Akreditasi Puskesmas dan Hasil Rapat Kerja Mutu;"];
@@ -286,10 +300,7 @@
     // === UI CORE ===
     function changeTab(tabId, btn) {
         document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => {
-            b.classList.remove('nav-active', 'text-white');
-            b.classList.add('text-slate-300');
-        });
+        document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('nav-active', 'text-white'); b.classList.add('text-slate-300'); });
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('nav-active', 'text-white');
         btn.classList.remove('text-slate-300');
@@ -305,16 +316,23 @@
         });
     }
 
-    function sync(field, val) {
-        document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val);
+    function sync(field, val) { document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val); }
+    function toggleMemperhatikan(checked) { document.getElementById('doc-table-memperhatikan').style.display = checked ? 'table' : 'none'; renderKonsideranForm(); }
+
+    function updateSyncStatus() {
+        const ind = document.getElementById('sync-indicator');
+        const text = document.getElementById('text-status');
+        const dot = document.getElementById('dot-status');
+        const ping = document.getElementById('ping-status');
+        if (apiKey) {
+            ind.className = "text-xs text-green-600 font-bold flex items-center gap-1.5 transition-opacity opacity-100";
+            text.innerText = "AI Tersambung";
+            dot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-500";
+            ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
+        }
     }
 
-    function toggleMemperhatikan(checked) {
-        document.getElementById('doc-table-memperhatikan').style.display = checked ? 'table' : 'none';
-        renderKonsideranForm();
-    }
-
-    // === NOTIFIKASI ===
+    // === NOTIFIKASI TOAST ===
     function showToast(message, type = 'success') {
         const toast = document.getElementById('custom-toast');
         const msgEl = document.getElementById('toast-message');
@@ -324,31 +342,31 @@
         msgEl.innerText = message;
         
         if (type === 'error') {
-            toast.className = 'fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl z-[90] flex items-center gap-3 border bg-white border-red-300 text-red-700 opacity-100';
+            toast.className = 'fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 border bg-white border-red-300 text-red-700 translate-y-0 opacity-100';
             iconEl.innerText = '❌';
         } else if (type === 'info') {
-            toast.className = 'fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl z-[90] flex items-center gap-3 border bg-white border-blue-300 text-blue-700 opacity-100';
+            toast.className = 'fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 border bg-white border-blue-300 text-blue-700 translate-y-0 opacity-100';
             iconEl.innerText = 'ℹ️';
         } else {
-            toast.className = 'fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl z-[90] flex items-center gap-3 border bg-white border-green-300 text-green-700 opacity-100';
+            toast.className = 'fixed bottom-6 right-6 px-5 py-4 rounded-xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 border bg-white border-green-300 text-green-700 translate-y-0 opacity-100';
             iconEl.innerText = '✅';
         }
-        
+
         toastTimeout = setTimeout(() => {
+            toast.style.transform = 'translateY(24px)';
             toast.style.opacity = '0';
             toast.style.pointerEvents = 'none';
-        }, type === 'error' ? 8000 : 4000); 
+        }, type === 'error' ? 6000 : 3500); 
     }
 
-    // === API KEY MODAL & TESTER ===
+    // === PENGATURAN API MODAL ===
     function toggleApiModal() {
         const modal = document.getElementById('api-modal');
         const content = document.getElementById('api-modal-content');
-        
         if (modal.classList.contains('hidden')) {
             modal.classList.remove('hidden');
-            document.getElementById('input-api-1').value = userApiKey;
-            document.getElementById('input-model').value = userModel || 'gemini-2.5-flash';
+            document.getElementById('input-api-1').value = apiKey;
+            document.getElementById('input-model').value = apiModel || 'gemini-2.5-flash';
             document.getElementById('test-result').classList.add('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
         } else {
@@ -358,25 +376,42 @@
     }
 
     function saveApiKeys() {
-        userApiKey = document.getElementById('input-api-1').value.trim();
-        userModel = document.getElementById('input-model').value.trim();
-        localStorage.setItem('skgen_apikey', userApiKey);
-        localStorage.setItem('skgen_model', userModel);
-        toggleApiModal();
-        if (userApiKey) showToast(`API Key dan model (${userModel}) siap digunakan.`, "success");
+        const inputKey = document.getElementById('input-api-1').value.trim();
+        const inputModel = document.getElementById('input-model').value.trim();
+        if(inputKey) {
+            apiKey = inputKey; 
+            apiModel = inputModel || "gemini-2.5-flash";
+            localStorage.setItem('skgen_apikey', apiKey);
+            localStorage.setItem('skgen_model', apiModel);
+            sessionStorage.setItem('sehati_api_key', apiKey);
+            updateSyncStatus(); 
+            toggleApiModal(); 
+            showToast(`API Key dan Model (${apiModel}) Disimpan.`, "success");
+        } else {
+            showToast("API Key tidak boleh kosong!", "error");
+        }
     }
 
     function loadApiKeys() {
-        const saved = localStorage.getItem('skgen_apikey');
-        if (saved) userApiKey = saved;
+        const savedKey = localStorage.getItem('skgen_apikey');
+        if (savedKey) {
+            apiKey = savedKey;
+            sessionStorage.setItem('sehati_api_key', apiKey);
+        } else if (sessionStorage.getItem('sehati_api_key')) {
+            apiKey = sessionStorage.getItem('sehati_api_key');
+        }
+        
         const savedModel = localStorage.getItem('skgen_model');
-        if (savedModel) userModel = savedModel;
-        else userModel = 'gemini-2.5-flash';
+        if (savedModel) {
+            apiModel = savedModel;
+        } else {
+            apiModel = 'gemini-2.5-flash';
+        }
     }
 
     async function testApiKey() {
         const testKey = document.getElementById('input-api-1').value.trim();
-        const selectedModel = document.getElementById('input-model').value.trim() || 'gemini-1.5-flash';
+        const selectedModel = document.getElementById('input-model').value.trim() || 'gemini-2.5-flash';
         const resEl = document.getElementById('test-result');
         resEl.classList.remove('hidden');
         
@@ -394,100 +429,87 @@
             const res = await fetch(testUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({contents: [{parts: [{text: "Balas dengan kata 'OK' saja."}]}]})
+                body: JSON.stringify({contents: [{parts: [{text: "Balas OK"}]}]})
             });
 
             if (!res.ok) {
                 const errData = await res.json().catch(()=>({}));
                 resEl.className = "text-xs font-bold mt-3 text-center text-red-600 bg-red-50 p-2 rounded";
-                resEl.innerHTML = `❌ MODEL TIDAK DIDUKUNG / API SALAH<br><span class="font-normal text-slate-700">Pastikan penulisan nama model persis.</span><br><br><span class="text-[10px] text-red-400">Error: ${errData.error?.message || 'Unknown Error'}</span>`;
+                resEl.innerHTML = `❌ MODEL TIDAK DIDUKUNG / API SALAH<br><span class="text-[10px] text-red-400">Error: ${errData.error?.message || 'Unknown Error'}</span>`;
             } else {
                 resEl.className = "text-xs font-bold mt-3 text-center text-green-600 bg-green-50 p-2 rounded";
-                resEl.innerText = `✅ KONEKSI BERHASIL!\nModel ${selectedModel} siap dipakai.`;
-                userApiKey = testKey;
-                userModel = selectedModel;
-                localStorage.setItem('skgen_apikey', userApiKey);
-                localStorage.setItem('skgen_model', userModel);
+                resEl.innerText = `✅ KONEKSI BERHASIL! Model siap.`;
             }
         } catch (error) {
             resEl.className = "text-xs font-bold mt-3 text-center text-red-600 bg-red-50 p-2 rounded";
-            resEl.innerText = `❌ GAGAL (Cek Internet Anda)\nPesan: ${error.message}`;
+            resEl.innerText = `❌ GAGAL KONEKSI (Cek Internet Anda)\nPesan: ${error.message}`;
         }
     }
 
-    // === FUNGSI GENERATOR AI UTAMA (PROMPT ENGINEERING MURNI) ===
+    // === MESIN AI GENERATOR ===
     async function callGemini(prompt, schema) {
-        if (!userApiKey) {
-            alert("API Key Kosong!\nSilakan klik tombol 'PENGATURAN API KEY' di pojok kanan atas.");
-            if (window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        if (!apiKey) {
+            toggleApiModal();
+            showToast("Harap isi API Key terlebih dahulu!", "error");
             throw new Error("API Key belum diisi.");
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${userModel}:generateContent?key=${userApiKey}`;
+        const isLive = document.getElementById('chk-live') && document.getElementById('chk-live').checked;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${apiKey}`;
         
-        const fullPrompt = prompt + `\n\nWAJIB: Balas HANYA menggunakan format JSON valid sesuai schema berikut, tanpa teks pengantar atau blok markdown apapun:\n${JSON.stringify(schema)}`;
-
         const payload = {
-            contents: [{ parts: [{ text: fullPrompt }] }]
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { 
+                responseMimeType: "application/json", 
+                responseSchema: schema, 
+                temperature: 0.1 
+            }
         };
 
-        try {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            if (!res.ok) {
-                // Notifikasi ke Dashboard jika limit
-                if (res.status === 429 && window.parent !== window) {
-                    window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
-                }
-                const errorData = await res.json().catch(() => ({}));
-                const msg = errorData.error?.message || `HTTP Error ${res.status}`;
-                throw new Error(`Google API Menolak: ${msg}`);
-            }
-            
-            const data = await res.json();
-            let textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            
-            if (!textResponse) throw new Error("Respons kosong dari AI.");
-
-            // PEMBERSIH MARKDOWN AMAN
-            textResponse = textResponse.trim();
-            const backticks = String.fromCharCode(96, 96, 96); 
-            if (textResponse.startsWith(backticks)) {
-                const mdRegexStart = new RegExp('^' + backticks + '(?:json)?\\n?', 'i');
-                const mdRegexEnd = new RegExp('\\n?' + backticks + '$', 'i');
-                textResponse = textResponse.replace(mdRegexStart, '').replace(mdRegexEnd, '');
-            }
-
-            return JSON.parse(textResponse);
-
-        } catch (error) {
-            if (error.name === "SyntaxError") {
-                alert(`Gagal membaca JSON dari AI.\nIni biasanya karena AI memberikan format yang salah.\nDetail: ${error.message}`);
-                throw new Error("Gagal parsing JSON dari AI.");
-            } else if (error.message.includes("Failed to fetch")) {
-                alert(`GAGAL KONEKSI INTERNET/CORS.\nPastikan koneksi stabil.\nDetail: ${error.message}`);
-                throw new Error("Koneksi internet/jaringan gagal.");
-            }
-            throw error; 
+        if (isLive) {
+            payload.tools = [{ googleSearch: {} }];
         }
+
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            const msg = errorData.error?.message || `Error ${res.status}`;
+            if (res.status === 429 && window.parent !== window) {
+                window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+            }
+            throw new Error(`Google API Menolak: ${msg}`);
+        }
+        
+        const data = await res.json();
+        let textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!textResponse) throw new Error("Respons kosong dari AI.");
+        
+        return JSON.parse(textResponse);
     }
 
-    // === GENERATE LOGIC ===
-    function getContextFasyankes() {
-        return `Konteks Fasyankes: ${document.getElementById('in-instansi').value} (${document.getElementById('in-pemda').value}). \nTopik SK: ${document.getElementById('in-tentang').value}.`;
-    }
-
+    // === LOGIKA GENERATE ===
     async function aiGenerate(mode) {
         const loader = document.getElementById(`loader-${mode}`);
         if(loader) loader.classList.remove('hidden');
 
+        const isLive = document.getElementById('chk-live') ? document.getElementById('chk-live').checked : false;
+        
+        if(mode === 'legal') {
+            const loaderText = document.getElementById('loader-text-legal');
+            if (loaderText) {
+                loaderText.innerText = isLive ? "Sedang Browsing Google Mencari Aturan Terbaru..." : "Menyusun Landasan Berdasarkan Memori AI...";
+            }
+        }
+
         try {
+            const instansi = document.getElementById('in-instansi').value;
+            const pemda = document.getElementById('in-pemda').value;
+            const tentang = document.getElementById('in-tentang').value;
+            const arahan = document.getElementById('in-legal-info').value;
+            const ctx = `Konteks Fasyankes: ${instansi} wilayah ${pemda}. Judul SK: ${tentang}. Referensi: ${referenceText}`;
+
             if(mode === 'legal') {
-                const arahan = document.getElementById('in-legal-info').value;
                 const schema = { 
                     type: "OBJECT", 
                     properties: { 
@@ -498,93 +520,38 @@
                     required: ["menimbang", "mengingat"]
                 };
                 
-                const promptText = `Anda sedang menyusun konsideran Surat Keputusan (SK).\n${getContextFasyankes()}\nArahan: ${arahan}.\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku berdasarkan basis data regulasi dan undang-undang kesehatan terbaru yang Anda ketahui.`;
+                let prompt = "";
+                if (isLive) {
+                    prompt = `Anda Ahli Hukum Tata Negara Fasyankes. TUGAS: Buat konsideran SK.\n${ctx}\nArahan khusus: ${arahan}.\n\nWAJIB: Gunakan penelusuran web (Google Search) untuk mengecek peraturan terbaru terkait topik ini. Pastikan ada UU Kesehatan No 17 Tahun 2023. Susun poinnya secara formal.`;
+                } else {
+                    prompt = `Anda Ahli Hukum Tata Negara Fasyankes. TUGAS: Buat konsideran SK.\n${ctx}\nArahan khusus: ${arahan}.\n\nSYARAT MUTLAK: 1) Cantumkan UU Nomor 17 Tahun 2023 tentang Kesehatan. 2) Gunakan pengetahuan internal Anda untuk mencari PMK/Perpres relevan tanpa mengarang nomor palsu.`;
+                }
 
-                const res = await callGemini(promptText, schema);
+                const res = await callGemini(prompt, schema);
                 menimbangItems = res.menimbang || [];
                 mengingatItems = res.mengingat || [];
-                if (document.getElementById('chk-memperhatikan').checked) memperhatikanItems = res.memperhatikan || [];
+                if(document.getElementById('chk-memperhatikan').checked) memperhatikanItems = res.memperhatikan || [];
                 
                 renderKonsideranForm();
-                showToast("Konsideran berhasil dibuat", "success");
+                showToast(isLive ? "Sintesis Live Web Search Berhasil!" : "Sintesis Memori AI Berhasil!", "success");
 
             } else if(mode === 'diktum') {
-                const schema = { 
-                    type: "OBJECT", 
-                    properties: { items: { type: "ARRAY", items: { type: "STRING" } } },
-                    required: ["items"]
-                };
+                const schema = { type: "OBJECT", properties: { items: { type: "ARRAY", items: { type: "STRING" } } }, required: ["items"] };
                 const contextKonsideran = `Menimbang: ${menimbangItems.join(' ')}. Mengingat: ${mengingatItems.join(' ')}.`;
                 
-                const promptText = `Buatkan poin-poin DIKTUM (keputusan inti) untuk SK.\n${getContextFasyankes()}\n\nBerdasarkan konsideran:\n${contextKonsideran}\n\nTUGAS PENTING: JANGAN tuliskan kata penomoran seperti "KESATU:", atau angka "1." di awal kalimat. Langsung tuliskan isi keputusannya.`;
+                const promptText = `Buatkan poin DIKTUM (keputusan inti) untuk SK Fasyankes.\n${ctx}\nDasar Hukum: ${contextKonsideran}\n\nTUGAS: Jangan berikan kata awalan seperti "KESATU:" atau angka di awal kalimat. Langsung isi kebijakannya saja secara jelas dan operasional.`;
 
                 const res = await callGemini(promptText, schema);
                 
                 diktumItems = (res.items || []).map(item => item.replace(/^(KESATU|KEDUA|KETIGA|KEEMPAT|KELIMA|KEENAM|KETUJUH|KEDELAPAN|KESEMBILAN|KESEPULUH|\d+\.)\s*[:.-]?\s*/i, '').trim());
                 renderDiktumForm();
-                showToast("Poin Diktum berhasil disusun", "success");
+                showToast("Diktum berhasil dirancang", "success");
             }
+            document.getElementById('main-scroll-area').scrollBy({ top: 300, behavior: 'smooth' });
         } catch(e) { 
             showToast("Gagal: " + e.message, "error");
         } finally {
             if(loader) loader.classList.add('hidden');
-        }
-    }
-
-    async function aiLamp(id) {
-        const l = lampiranItems.find(x => x.id === id);
-        showToast("AI sedang merancang tabel...", "info");
-        try {
-            const schema = { 
-                type: "OBJECT", 
-                properties: { 
-                    headers: { type: "ARRAY", items: { type: "STRING" } }, 
-                    rows: { type: "ARRAY", items: { type: "OBJECT", properties: { cells: { type: "ARRAY", items: { type: "STRING" } } }, required: ["cells"] } } 
-                },
-                required: ["headers", "rows"]
-            };
-            const promptText = `Buatkan tabel terstruktur untuk lampiran SK.\n${getContextFasyankes()}\nJudul Lampiran: ${l.judul}.\nInstruksi Pengguna: ${l.context}\nBuatkan kolom header dan contoh baris isi yang logis.`;
-            const res = await callGemini(promptText, schema);
-            l.headers = res.headers; 
-            l.rows = res.rows.map(row => row.cells || []);
-            renderLampiranUI();
-            showToast("Tabel lampiran berhasil dibuat", "success");
-        } catch(e) {
-            showToast("Gagal buat tabel: " + e.message, "error");
-        }
-    }
-
-    // === PDF PROCESSING ===
-    async function processFile(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        document.getElementById('file-name').innerText = file.name;
-        try {
-            if (file.type === "application/pdf") {
-                const reader = new FileReader();
-                reader.onload = async function() {
-                    const typedarray = new Uint8Array(this.result);
-                    const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
-                    let fullText = "";
-                    for(let i=1; i<=pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const content = await page.getTextContent();
-                        fullText += content.items.map(s => s.str).join(" ") + " ";
-                    }
-                    referenceText = fullText.substring(0, 15000); 
-                    showToast("PDF berhasil diurai", "success");
-                };
-                reader.readAsArrayBuffer(file);
-            } else if (file.type === "text/plain") {
-                const reader = new FileReader();
-                reader.onload = function() { 
-                    referenceText = this.result.substring(0, 15000);
-                    showToast("File teks berhasil dimuat", "success");
-                };
-                reader.readAsText(file);
-            }
-        } catch (error) {
-            showToast("Gagal membaca file.", "error");
         }
     }
 
@@ -639,8 +606,9 @@
     function addDiktumItem() { diktumItems.push("..."); renderDiktumForm(); }
     function delDiktumItem(i) { diktumItems.splice(i, 1); renderDiktumForm(); }
 
+    // === SMART LAMPIRAN LOGIC ===
     function addLampiran() {
-        lampiranItems.push({ id: Date.now(), judul: "SUSUNAN TIM", context: "", headers: ["No", "Nama / Jabatan", "Peran", "Keterangan"], rows: [["1", "dr. Fulan", "Ketua Tim", "-"]] });
+        lampiranItems.push({ id: Date.now(), judul: "SUSUNAN TIM DAN URAIAN TUGAS", context: "", headers: ["No", "Nama / Jabatan", "Peran", "Keterangan"], rows: [["1", "dr. Fulan", "Ketua Tim", "-"]] });
         renderLampiranUI();
     }
 
@@ -650,47 +618,91 @@
         const nomor = document.getElementById('in-nomor').value;
         const tentang = document.getElementById('in-tentang').value;
 
-        document.getElementById('lampiran-list').innerHTML = lampiranItems.map((l, i) => `<div class="bg-white p-5 border border-slate-200 rounded-xl shadow-sm relative"><div class="flex justify-between items-center mb-3"><span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md">Lampiran ${romawi(i+1)}</span><button onclick="delLamp(${l.id})" class="text-red-400 hover:text-red-600">Hapus</button></div><div><input type="text" class="w-full p-2.5 text-sm border border-slate-200 rounded-lg uppercase font-semibold mb-2" value="${l.judul}" oninput="updateLampJudul(${l.id}, this.value)"><textarea class="w-full p-2 text-xs border border-slate-200 rounded-lg" placeholder="Instruksi Spesifik AI (Opsional)..." oninput="updateLampContext(${l.id}, this.value)">${l.context || ''}</textarea></div><button onclick="aiLamp(${l.id})" class="w-full py-2 mt-3 bg-blue-50 text-blue-700 text-xs font-bold rounded-xl border border-blue-100">✨ Generate Tabel AI</button></div>`).join('');
+        document.getElementById('lampiran-list').innerHTML = lampiranItems.map((l, i) => `
+        <div class="bg-white p-5 border border-slate-200 rounded-xl shadow-sm relative">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md">Lampiran ${romawi(i+1)}</span>
+                <button onclick="lampiranItems.splice(${i},1); renderLampiranUI()" class="text-red-400 hover:text-red-600 text-xs font-bold">Hapus</button>
+            </div>
+            <div>
+                <input type="text" class="w-full p-2 text-sm border border-slate-200 rounded-lg uppercase font-semibold mb-2" value="${l.judul.replace(/"/g, '&quot;')}" oninput="updateLampJudul(${l.id}, this.value)">
+                <textarea class="w-full p-2 text-xs border border-slate-200 rounded-lg custom-scroll" placeholder="Instruksi Tabel AI (Opsional)... misal: buat 3 kolom..." oninput="lampiranItems[${i}].context=this.value">${l.context || ''}</textarea>
+            </div>
+            <button onclick="aiLamp(${l.id})" class="w-full py-2 mt-3 bg-blue-50 text-blue-700 text-xs font-bold rounded-xl border border-blue-100 transition hover:bg-blue-600 hover:text-white">✨ Generate Tabel AI</button>
+        </div>`).join('');
 
-        document.getElementById('lampiran-container').innerHTML = lampiranItems.map((l, i) => `<div class="folio-paper lampiran-paper" contenteditable="true"><table style="border:none; width: 100%; font-size: 10pt; margin-bottom: 20px;"><tr><td style="width:15%; font-weight:bold;">LAMPIRAN ${romawi(i+1)}</td><td style="width:2%">:</td><td>KEPUTUSAN <span class="doc-jabatan uppercase">${instansi}</span></td></tr><tr><td style="font-weight:bold;">NOMOR</td><td>:</td><td><span class="doc-nomor">${nomor}</span></td></tr><tr><td style="font-weight:bold;">TENTANG</td><td>:</td><td class="uppercase"><span class="doc-tentang">${tentang}</span></td></tr></table><h3 id="lamp-title-doc-${l.id}" class="font-bold mb-4 uppercase text-center" style="font-size: 11pt;">${l.judul}</h3><table style="border: 1px solid black; width: 100%; border-collapse: collapse; font-size: 10pt;"><thead style="background:#f8fafc"><tr>${l.headers.map(h => `<th style="border:1px solid black; padding:8px 5px; text-align: center;">${h}</th>`).join('')}</tr></thead><tbody>${l.rows.map(row => `<tr>${row.map(c => `<td style="border:1px solid black; padding:6px 5px;">${c}</td>`).join('')}</tr>`).join('')}</tbody></table><div class="flex justify-end mt-12 page-break-inside-avoid"><div class="w-1/2 text-left" style="padding-left: 2.5rem;"><p class="font-bold mt-2 uppercase doc-jabatan">KEPALA UPTD PUSKESMAS<br>PERCONTOHAN,</p><br><br><br><p class="font-bold underline doc-kadis">dr. FULANAH, M.Kes</p><p class="doc-nip">NIP. 19800101 200501 2 001</p></div></div></div>`).join('');
+        document.getElementById('lampiran-container').innerHTML = lampiranItems.map((l, i) => `
+        <div class="folio-paper lampiran-paper" contenteditable="true">
+            <table style="border:none; width: 100%; font-size: 10pt; margin-bottom: 20px;">
+                <tr><td style="width:15%; font-weight:bold;">LAMPIRAN ${romawi(i+1)}</td><td style="width:2%">:</td><td>KEPUTUSAN <span class="doc-jabatan uppercase">${instansi}</span></td></tr>
+                <tr><td style="font-weight:bold;">NOMOR</td><td>:</td><td><span class="doc-nomor">${nomor}</span></td></tr>
+                <tr><td style="font-weight:bold;">TENTANG</td><td>:</td><td class="uppercase"><span class="doc-tentang">${tentang}</span></td></tr>
+            </table>
+            <h3 id="lamp-title-doc-${l.id}" class="font-bold mb-4 uppercase text-center" style="font-size: 11pt;">${l.judul}</h3>
+            <table style="border: 1px solid black; width: 100%; border-collapse: collapse; font-size: 10pt;">
+                <thead style="background:#f8fafc"><tr>${l.headers.map(h => `<th style="border:1px solid black; padding:8px 5px; text-align: center;">${h}</th>`).join('')}</tr></thead>
+                <tbody>${l.rows.map(row => `<tr>${row.map(c => `<td style="border:1px solid black; padding:6px 5px;">${c}</td>`).join('')}</tr>`).join('')}</tbody>
+            </table>
+            <div class="flex justify-end mt-12 page-break-inside-avoid">
+                <div class="w-1/2 text-left" style="padding-left: 2.5rem;">
+                    <p class="font-bold mt-2 uppercase doc-jabatan">KEPALA UPTD PUSKESMAS<br>PERCONTOHAN,</p>
+                    <br><br><br><p class="font-bold underline doc-kadis">dr. FULANAH, M.Kes</p>
+                    <p class="doc-nip">NIP. 19800101 200501 2 001</p>
+                </div>
+            </div>
+        </div>`).join('');
     }
 
     function updateLampJudul(id, val) { const item = lampiranItems.find(x => x.id === id); if (item) item.judul = val; const d = document.getElementById(`lamp-title-doc-${id}`); if(d) d.innerText = val; }
-    function updateLampContext(id, val) { const item = lampiranItems.find(x => x.id === id); if (item) item.context = val; }
-    function delLamp(id) { lampiranItems = lampiranItems.filter(x => x.id !== id); renderLampiranUI(); }
 
+    async function aiLamp(id) {
+        const l = lampiranItems.find(x => x.id === id);
+        showToast("Menganalisis & Merancang Tabel...", "info");
+        try {
+            const schema = { type: "OBJECT", properties: { headers: { type: "ARRAY", items: { type: "STRING" } }, rows: { type: "ARRAY", items: { type: "OBJECT", properties: { cells: { type: "ARRAY", items: { type: "STRING" } } }, required: ["cells"] } } }, required: ["headers", "rows"] };
+            const ctx = getContextFasyankes();
+            const res = await callGemini(`Buatkan tabel untuk lampiran SK.\n${ctx}\nJudul Lampiran: ${l.judul}.\nInstruksi: ${l.context}\nBuatkan kolom header relevan dan isi contoh data logis puskesmas.`, schema);
+            l.headers = res.headers; l.rows = res.rows.map(row => row.cells || []);
+            renderLampiranUI(); showToast("Tabel lampiran berhasil dibuat", "success");
+        } catch(e) { showToast("Gagal buat tabel: " + e.message, "error"); }
+    }
+
+    async function processFile(e) { 
+        const f=e.target.files[0]; if(!f)return; document.getElementById('file-name').innerText=f.name; 
+        if(f.type==="application/pdf"){ 
+            const r=new FileReader(); r.onload=async function(){ 
+                const p=await pdfjsLib.getDocument({data:new Uint8Array(this.result)}).promise; 
+                let t=""; for(let i=1;i<=p.numPages;i++){ const pg=await p.getPage(i); const c=await pg.getTextContent(); t+=c.items.map(s=>s.str).join(" ")+" "; } 
+                referenceText=t.substring(0,15000); showToast("PDF Diurai","success"); 
+            }; r.readAsArrayBuffer(f); 
+        }else{ 
+            const r=new FileReader(); r.onload=function(){ referenceText=this.result.substring(0,15000); showToast("Teks Dimuat","success"); }; r.readAsText(f); 
+        } 
+    }
+
+    // === INIT SCRIPT ===
     window.onload = () => { 
         loadApiKeys();
+        if(window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
         
-        // INTEGRASI PORTAL DASHBOARD (URL PARAMS)
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyFromUrl = urlParams.get('key');
-        if (keyFromUrl) {
-            userApiKey = keyFromUrl;
-            localStorage.setItem('skgen_apikey', userApiKey);
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
-        }
-
-        // INTEGRASI PORTAL DASHBOARD (POSTMESSAGE HANDSHAKE)
-        if (window.parent !== window) {
-            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
-        }
-
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'UPDATE_API_KEY') {
-                userApiKey = event.data.key;
-                localStorage.setItem('skgen_apikey', userApiKey);
-                showToast("Sesi Sinkron: API Key dari Portal Dashboard Aktif", "info");
+        window.addEventListener('message', e => { 
+            if(e.data && e.data.type === 'UPDATE_API_KEY') { 
+                apiKey = e.data.key; 
+                sessionStorage.setItem('sehati_api_key', apiKey); 
+                updateSyncStatus();
             }
         });
-
-        renderKonsideranForm(); renderDiktumForm(); renderLampiranUI(); 
+        
+        updateSyncStatus();
+        renderKonsideranForm(); 
+        renderDiktumForm(); 
+        renderLampiranUI(); 
+        
         sync('pemda', document.getElementById('in-pemda').value);
         sync('instansi', document.getElementById('in-instansi').value);
         sync('nomor', document.getElementById('in-nomor').value);
         sync('tentang', document.getElementById('in-tentang').value);
-    }
+    };
 </script>
 </body>
 </html>
