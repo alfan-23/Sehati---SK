@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SK-Generator Pro | v4.5 High-Performance</title>
+    <title>SK-Generator Pro | v4.5 Smart Context</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -75,7 +75,7 @@
                 </div>
                 <div>
                     <h1 class="text-base font-black text-slate-800 leading-tight uppercase tracking-tighter">SK-Generator <span class="text-blue-600">PRO v4.5</span></h1>
-                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Smart Context & Google Grounding</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Smart AI Legal Context</p>
                 </div>
             </div>
             
@@ -101,7 +101,7 @@
                     <i class="fa-solid fa-database opacity-70"></i> Data Dasar
                 </button>
                 <button onclick="changeTab('tab-legal', this)" class="nav-btn px-6 py-2 rounded-xl flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-700 transition-all font-bold text-xs uppercase tracking-wide border border-transparent">
-                    <i class="fa-solid fa-scale-balanced opacity-70"></i> Konsideran (Live AI)
+                    <i class="fa-solid fa-scale-balanced opacity-70"></i> Konsideran (AI)
                 </button>
                 <button onclick="changeTab('tab-diktum', this)" class="nav-btn px-6 py-2 rounded-xl flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-700 transition-all font-bold text-xs uppercase tracking-wide border border-transparent">
                     <i class="fa-solid fa-gavel opacity-70"></i> Poin Diktum
@@ -167,13 +167,13 @@
 
                 <div id="tab-legal" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-10">
-                        <div class="bg-slate-900 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
-                            <div class="absolute top-0 right-0 p-8 opacity-10"><i class="fa-solid fa-globe text-9xl"></i></div>
-                            <h3 class="text-xl font-black mb-2 flex items-center gap-3"><i class="fa-solid fa-earth-asia text-blue-400"></i> Mode Live Grounding Aktif</h3>
-                            <p class="text-slate-400 text-xs font-medium mb-8 leading-relaxed max-w-2xl">AI akan menelusuri internet secara riil untuk mencari UU, PMK, dan regulasi terbaru (2024-2026) yang relevan dengan judul SK Bapak.</p>
+                        <div class="bg-indigo-900 rounded-[32px] p-8 text-white shadow-2xl relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-8 opacity-10"><i class="fa-solid fa-scale-balanced text-9xl"></i></div>
+                            <h3 class="text-xl font-black mb-2 flex items-center gap-3"><i class="fa-solid fa-brain text-blue-400"></i> Mode Smart AI Legal</h3>
+                            <p class="text-slate-400 text-xs font-medium mb-8 leading-relaxed max-w-2xl">AI akan menggunakan basis pengetahuannya untuk memilah hierarki dasar hukum (UU, PP, Perpres, PMK) yang relevan dan akurat untuk SK Bapak.</p>
                             
                             <label class="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3 ml-1">Instruksi Khusus (Opsional)</label>
-                            <textarea id="in-legal-info" class="w-full border-none rounded-2xl p-5 text-sm font-medium text-slate-900 outline-none focus:ring-4 focus:ring-blue-500 shadow-2xl min-h-[120px]" placeholder="Contoh: Pastikan merujuk ke UU Kesehatan No 17 Tahun 2023 dan PMK tentang Akreditasi terbaru..."></textarea>
+                            <textarea id="in-legal-info" class="w-full border-none rounded-2xl p-5 text-sm font-medium text-slate-900 outline-none focus:ring-4 focus:ring-blue-500 shadow-2xl min-h-[100px]" placeholder="Contoh: Pastikan merujuk ke PMK tentang Akreditasi dan Peraturan Bupati terkait..."></textarea>
                             
                             <div class="mt-8 flex items-center justify-between border-t border-white/10 pt-6">
                                 <div class="flex items-center gap-3">
@@ -181,14 +181,14 @@
                                     <label for="chk-memperhatikan" class="text-xs font-bold text-slate-300">Sertakan Bagian "Memperhatikan"</label>
                                 </div>
                                 <button onclick="aiGenerate('legal')" class="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black shadow-xl transition-all active:scale-[0.98] uppercase tracking-widest text-xs flex items-center gap-3">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Sintesa Konsideran Live AI
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Sintesa Dasar Hukum (AI)
                                 </button>
                             </div>
                         </div>
 
                         <div id="loader-legal" class="hidden flex flex-col items-center py-10">
                             <div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden mb-4"><div class="h-full bg-blue-600 animate-[progress_2s_infinite]"></div></div>
-                            <p class="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] animate-pulse">Menghubungi Server Google... Browsing Aturan Terbaru...</p>
+                            <p class="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] animate-pulse">Menyusun Landasan Hukum (Mengingat & Menimbang)...</p>
                         </div>
                         
                         <div class="grid grid-cols-1 gap-12">
@@ -231,46 +231,69 @@
                         <div class="text-center py-12 bg-slate-50 rounded-[40px] border-2 border-slate-100 mb-10">
                             <i class="fa-solid fa-file-circle-plus text-7xl text-slate-200 mb-6 block"></i>
                             <h2 class="text-lg font-black text-slate-800 uppercase mb-2">Editor Lampiran Cerdas</h2>
-                            <p class="text-xs text-slate-500 mb-8 max-w-md mx-auto">AI membantu merapikan data tabel jika Bapak mengunggah referensi.</p>
+                            <p class="text-xs text-slate-500 mb-8 max-w-md mx-auto">Tambahkan tabel susunan tim atau uraian tugas. AI akan membantu merapikan data tabel jika Bapak mengunggah referensi.</p>
                             <button onclick="addLampiran()" class="px-14 py-5 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 shadow-2xl transition-all active:scale-95 uppercase text-xs tracking-widest">
                                 <i class="fa-solid fa-plus mr-2"></i> Tambah Lembar Lampiran
                             </button>
                         </div>
+                        
                         <div id="lampiran-edit-list" class="grid grid-cols-1 md:grid-cols-2 gap-10"></div>
                     </div>
                 </div>
             </div>
 
             <div id="print-area" class="w-full flex flex-col items-center gap-20">
+                
                 <div class="folio-paper shadow-2xl" contenteditable="true" spellcheck="false" id="preview-paper">
                     <div class="kop-surat">
                         <h2 class="doc-pemda font-extrabold uppercase" style="font-size: 14pt;">PEMERINTAH KABUPATEN CONTOH</h2>
                         <h1 class="doc-instansi font-extrabold uppercase" style="font-size: 18pt;">UPTD PUSKESMAS PERCONTOHAN</h1>
                         <p class="doc-alamat text-center font-medium" style="font-size: 9pt;">Jalan Kesehatan No. 1, Kecamatan Sehat, Kabupaten Contoh</p>
                     </div>
+
                     <div class="text-center mb-10">
                         <p class="font-bold uppercase" style="font-size: 11pt;">KEPUTUSAN KEPALA <span class="doc-instansi">UPTD PUSKESMAS PERCONTOHAN</span></p>
                         <p style="font-size: 11pt;">Nomor: <span class="doc-nomor font-bold">440/001/SK-PKM/2026</span></p>
-                        <br><p class="font-bold uppercase" style="font-size: 11pt;">TENTANG</p>
-                        <p class="font-bold uppercase doc-tentang" style="max-width: 85%; margin: 0 auto; font-size: 11pt;">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</p>
-                        <br><p class="font-bold uppercase" style="font-size: 11pt;">KEPALA <span class="doc-instansi">UPTD PUSKESMAS PERCONTOHAN</span>,</p>
+                        <br>
+                        <p class="font-bold uppercase" style="font-size: 11pt;">TENTANG</p>
+                        <p class="font-bold uppercase doc-tentang" style="max-width: 85%; margin: 0 auto; font-size: 11pt; border-bottom: 0.5px solid transparent">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</p>
+                        <br>
+                        <p class="font-bold uppercase" style="font-size: 11pt;">KEPALA <span class="doc-instansi">UPTD PUSKESMAS PERCONTOHAN</span>,</p>
                     </div>
-                    <table style="border:none; border-collapse:collapse; width: 100%;"><tbody id="doc-tbody-menimbang"></tbody></table>
-                    <table style="border:none; border-collapse:collapse; width: 100%; margin-top: 15px;"><tbody id="doc-tbody-mengingat"></tbody></table>
-                    <table id="doc-table-memperhatikan" style="border:none; border-collapse:collapse; width: 100%; margin-top: 15px;"><tbody id="doc-tbody-memperhatikan"></tbody></table>
+
+                    <table style="border:none; border-collapse:collapse; width: 100%;">
+                        <tbody id="doc-tbody-menimbang"></tbody>
+                    </table>
+                    
+                    <table style="border:none; border-collapse:collapse; width: 100%; margin-top: 15px;">
+                        <tbody id="doc-tbody-mengingat"></tbody>
+                    </table>
+
+                    <table id="doc-table-memperhatikan" style="border:none; border-collapse:collapse; width: 100%; margin-top: 15px;">
+                        <tbody id="doc-tbody-memperhatikan"></tbody>
+                    </table>
+
                     <div class="text-center font-bold mb-6 mt-12" style="font-size: 12pt;">MEMUTUSKAN:</div>
-                    <table style="border:none; border-collapse:collapse; width: 100%;"><tbody id="doc-tbody-diktum"></tbody></table>
+
+                    <table style="border:none; border-collapse:collapse; width: 100%;">
+                        <tbody id="doc-tbody-diktum"></tbody>
+                    </table>
+
                     <div class="flex justify-end mt-16 page-break-inside-avoid">
                         <div class="w-1/2 text-left" style="padding-left: 3.5cm;">
                             <p>Ditetapkan di: <span class="doc-tempat">Kabupaten Contoh</span></p>
                             <p>Pada tanggal: <span class="doc-tanggal">2 Januari 2026</span></p>
-                            <br><p class="font-bold uppercase">KEPALA <span class="doc-instansi">UPTD PUSKESMAS PERCONTOHAN</span>,</p>
-                            <br><br><br><br><p class="font-bold underline" style="font-size: 11pt;">dr. FULANAH, M.Kes</p>
+                            <br>
+                            <p class="font-bold uppercase">KEPALA <span class="doc-instansi">UPTD PUSKESMAS PERCONTOHAN</span>,</p>
+                            <br><br><br><br>
+                            <p class="font-bold underline" style="font-size: 11pt;">dr. FULANAH, M.Kes</p>
                             <p style="font-size: 11pt;">NIP. 19800101 200501 2 001</p>
                         </div>
                     </div>
                 </div>
-                <div id="lampiran-container" class="w-full flex flex-col items-center gap-20"></div>
+
+                <div id="lampiran-container" class="w-full flex flex-col items-center gap-16"></div>
+
             </div>
         </div>
     </main>
@@ -281,57 +304,70 @@
     </div>
 
 <script>
-    // --- STATE & INITIALIZATION ---
+    // --- STATE DATA GLOBAL ---
     let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
     let referenceText = "";
-    let menimbangItems = ["bahwa dalam rangka meningkatkan mutu pelayanan kesehatan primer yang berkesinambungan..."];
+    let menimbangItems = ["bahwa dalam rangka meningkatkan mutu pelayanan kesehatan primer yang berkesinambungan dan terintegrasi..."];
     let mengingatItems = ["Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;"];
-    let memperhatikanItems = ["Pedoman Tata Naskah Dinas Pemerintah Daerah;"];
-    let diktumItems = ["Menetapkan Susunan Tim Mutu sebagaimana terlampir dalam keputusan ini."];
+    let memperhatikanItems = ["Pedoman Tata Naskah Dinas di Lingkungan Pemerintah Daerah;"];
+    let diktumItems = ["Menetapkan Susunan Tim Mutu dan Keselamatan Pasien sebagaimana terlampir dalam keputusan ini."];
     let lampiranItems = [];
 
+    // --- LOGIKA INTEGRASI DASHBOARD PORTAL ---
     function updateSyncStatus() {
         const ind = document.getElementById('sync-indicator');
         const ping = document.getElementById('ping-circle');
         const circle = document.getElementById('status-circle');
         const text = document.getElementById('status-text');
+
         if (userApiKey) {
-            ind.classList.replace('bg-slate-50', 'bg-emerald-50'); ind.classList.replace('border-slate-200', 'border-emerald-200');
-            ping.classList.replace('bg-red-400', 'bg-emerald-400'); circle.classList.replace('bg-red-500', 'bg-emerald-500');
-            text.innerText = "Sesi AI Aktif"; text.classList.replace('text-slate-500', 'text-emerald-600');
+            ind.classList.replace('bg-slate-50', 'bg-emerald-50');
+            ind.classList.replace('border-slate-200', 'border-emerald-200');
+            ping.classList.replace('bg-red-400', 'bg-emerald-400');
+            circle.classList.replace('bg-red-500', 'bg-emerald-500');
+            text.innerText = "Sesi AI Aktif";
+            text.classList.replace('text-slate-500', 'text-emerald-600');
         }
     }
 
     window.addEventListener('DOMContentLoaded', () => { 
-        if (window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        if (window.parent !== window) { window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*'); }
         const urlParams = new URLSearchParams(window.location.search);
         const keyFromUrl = urlParams.get('key');
         if (keyFromUrl) { userApiKey = keyFromUrl; sessionStorage.setItem('sehati_api_key', userApiKey); }
+
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'UPDATE_API_KEY') {
                 userApiKey = event.data.key; sessionStorage.setItem('sehati_api_key', userApiKey);
-                updateSyncStatus(); showToast("API Key Tersinkron", "success");
+                updateSyncStatus();
+                if (keyFromUrl !== event.data.key) { showToast("Kunci API Diperbarui Otomatis", "success"); }
             }
         });
+
         renderAllForms(); updateSyncStatus(); syncAllBaseData();
     });
 
-    // --- AI ENGINE (FIXED MODEL ID & GROUNDING) ---
+    // --- LOGIKA MESIN AI (TANPA LIVE SEARCH, FOKUS SMART CONTEXT) ---
     async function callGemini(prompt, schema) {
-        if (!userApiKey) { showToast("Gagal: API Key Kosong!", "error"); throw new Error("No Key"); }
-        // PERBAIKAN FATAL: Menggunakan model stabil 1.5-flash untuk menghindari Error 404
-        const modelId = "gemini-1.5-flash"; 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${userApiKey}`;
+        if (!userApiKey) { showToast("API Key Portal Kosong!", "error"); throw new Error("No Key"); }
+        
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${userApiKey}`;
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ googleSearch: {} }], // Sintaks Live Grounding Terbaru
-            generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.1 }
+            // LIVE SEARCH DIMATIKAN SESUAI KESEPAKATAN AGAR STABIL
+            generationConfig: { 
+                responseMimeType: "application/json", 
+                responseSchema: schema, 
+                temperature: 0.1 // Diperkecil agar AI memberikan dasar hukum yang sangat akurat
+            }
         };
+
         const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!res.ok) { 
             if (res.status === 429) window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
-            throw new Error(`Cloud AI Error ${res.status}`); 
+            throw new Error(`Google AI Error: ${res.status}`); 
         }
+
         const data = await res.json();
         return JSON.parse(data.candidates[0].content.parts[0].text);
     }
@@ -339,82 +375,241 @@
     async function aiGenerate(mode) {
         const loader = document.getElementById(`loader-${mode}`);
         loader.classList.remove('hidden');
+        
         try {
             const instansi = document.getElementById('in-instansi').value;
+            const pemda = document.getElementById('in-pemda').value;
             const tentang = document.getElementById('in-tentang').value;
-            const context = `Fasyankes: ${instansi}. Topik: ${tentang}. Referensi: ${referenceText}`;
+            const arahan = document.getElementById('in-legal-info').value;
+            
+            const context = `Konteks Fasyankes: ${instansi} wilayah ${pemda}. Perihal SK: "${tentang}". Referensi Tambahan: ${referenceText}`;
+
             if (mode === 'legal') {
-                const schema = { type: "OBJECT", properties: { menimbang: { type: "ARRAY", items: { type: "STRING" } }, mengingat: { type: "ARRAY", items: { type: "STRING" } }, memperhatikan: { type: "ARRAY", items: { type: "STRING" } } }, required: ["menimbang", "mengingat"] };
-                const res = await callGemini(`Sintesa konsideran SK. CARI LANDASAN HUKUM PMK/UU TERBARU 2024-2026 via GOOGLE SEARCH. ${context}`, schema);
-                menimbangItems = res.menimbang; mengingatItems = res.mengingat; if(res.memperhatikan) memperhatikanItems = res.memperhatikan;
+                const schema = { 
+                    type: "OBJECT", 
+                    properties: { 
+                        menimbang: { type: "ARRAY", items: { type: "STRING" } }, 
+                        mengingat: { type: "ARRAY", items: { type: "STRING" } },
+                        memperhatikan: { type: "ARRAY", items: { type: "STRING" } }
+                    }, 
+                    required: ["menimbang", "mengingat"] 
+                };
+                
+                // PENGUATAN PROMPT AGAR AI SANGAT CERDAS MEMILIH HUKUM TANPA INTERNET
+                const prompt = `Anda adalah Ahli Hukum Tata Negara dan Konsultan Manajemen Fasyankes. 
+                TUGAS: Buat konsideran Surat Keputusan (SK) Kepala Fasyankes.
+                
+                SYARAT MUTLAK UNTUK "MENGINGAT":
+                1. WAJIB mencantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan".
+                2. Gunakan memori internal Anda untuk mencari Peraturan Menteri Kesehatan (PMK) terbaru yang paling spesifik berkaitan dengan topik SK ini.
+                3. Urutkan hierarki dari UU, PP, Perpres, hingga PMK. JANGAN MENGARANG NOMOR UU/PMK PALSU.
+                
+                Arahan Khusus User: ${arahan}. ${context}`;
+                
+                const res = await callGemini(prompt, schema);
+                menimbangItems = res.menimbang || []; 
+                mengingatItems = res.mengingat || [];
+                if (res.memperhatikan) memperhatikanItems = res.memperhatikan;
             } else {
                 const schema = { type: "OBJECT", properties: { items: { type: "ARRAY", items: { type: "STRING" } } }, required: ["items"] };
-                const res = await callGemini(`Buat 5 poin keputusan strategis (Diktum) untuk SK fasyankes ini. ${context}`, schema);
-                diktumItems = res.items;
+                const prompt = `Susun poin-poin keputusan (Diktum: KESATU s.d KELIMA) yang teknis dan operasional untuk SK tentang: ${tentang}. Pastikan poinnya spesifik untuk level fasyankes. JANGAN TULIS kata 'KESATU:', 'KEDUA:', dll di awal teks. ${context}`;
+                
+                const res = await callGemini(prompt, schema);
+                diktumItems = res.items || [];
             }
-            renderAllForms(); showToast("Sintesa Berhasil!", "success");
-        } catch(e) { showToast(e.message, "error"); }
-        loader.classList.add('hidden');
+            renderAllForms();
+            showToast("Sintesa Cerdas Berhasil!", "success");
+        } catch(e) { 
+            console.error(e);
+            showToast("Gagal: " + e.message, "error"); 
+        } finally {
+            loader.classList.add('hidden');
+        }
     }
 
-    // --- RENDER & TOOLS ---
+    // --- LOGIKA RENDER & SINKRONISASI VISUAL ---
     function renderAllForms() {
-        document.getElementById('menimbang-list').innerHTML = menimbangItems.map((item, i) => `<div class="flex gap-4"><span class="font-black text-slate-300 mt-3 w-4">${String.fromCharCode(97+i)}.</span><textarea class="w-full p-4 border rounded-2xl text-xs" oninput="menimbangItems[${i}]=this.value; updateDocView()">${item}</textarea></div>`).join('');
-        document.getElementById('mengingat-list').innerHTML = mengingatItems.map((item, i) => `<div class="flex gap-4"><span class="font-black text-slate-300 mt-3 w-4">${i+1}.</span><textarea class="w-full p-4 border rounded-2xl text-xs" oninput="mengingatItems[${i}]=this.value; updateDocView()">${item}</textarea></div>`).join('');
-        document.getElementById('diktum-edit-list').innerHTML = diktumItems.map((item, i) => `<div class="bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm"><label class="text-[9px] font-black text-blue-500 uppercase">Diktum ${i+1}</label><textarea class="w-full p-3 mt-2 border border-slate-100 rounded-xl text-xs font-bold" oninput="diktumItems[${i}]=this.value; updateDocView()">${item}</textarea></div>`).join('');
+        document.getElementById('menimbang-list').innerHTML = menimbangItems.map((item, i) => `
+            <div class="flex gap-4 group"><span class="font-black text-slate-300 mt-3 w-4 shrink-0">${String.fromCharCode(97+i)}.</span>
+            <textarea class="w-full p-4 border-2 border-slate-50 rounded-2xl text-xs font-medium focus:border-blue-400 outline-none transition-all shadow-sm" oninput="menimbangItems[${i}]=this.value; updateDocView()">${item}</textarea></div>
+        `).join('');
+
+        document.getElementById('mengingat-list').innerHTML = mengingatItems.map((item, i) => `
+            <div class="flex gap-4 group"><span class="font-black text-slate-300 mt-3 w-4 shrink-0">${i+1}.</span>
+            <textarea class="w-full p-4 border-2 border-slate-50 rounded-2xl text-xs font-medium focus:border-emerald-400 outline-none transition-all shadow-sm" oninput="mengingatItems[${i}]=this.value; updateDocView()">${item}</textarea></div>
+        `).join('');
+
+        document.getElementById('diktum-edit-list').innerHTML = diktumItems.map((item, i) => `
+            <div class="bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm"><label class="text-[9px] font-black text-blue-500 uppercase tracking-widest">Diktum Ke-${i+1}</label>
+            <textarea class="w-full p-3 mt-2 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-400" oninput="diktumItems[${i}]=this.value; updateDocView()">${item}</textarea></div>
+        `).join('');
+
         updateDocView();
     }
 
     function updateDocView() {
-        const renderTable = (id, data, label, prefixType) => {
-            document.getElementById(id).innerHTML = data.map((item, i) => `<tr><td style="width:18%; font-weight:bold">${i===0?label:''}</td><td style="width:2%">${i===0?':':''}</td><td style="width:5%">${prefixType==='abc'?String.fromCharCode(97+i)+'.':(i+1)+'.'}</td><td style="text-align:justify">${item}</td></tr>`).join('');
-        };
-        renderTable('doc-tbody-menimbang', menimbangItems, 'Menimbang', 'abc');
-        renderTable('doc-tbody-mengingat', mengingatItems, 'Mengingat', '123');
+        renderDocTable('menimbang', menimbangItems, 'Menimbang');
+        renderDocTable('mengingat', mengingatItems, 'Mengingat');
+        
         const showAttention = document.getElementById('chk-memperhatikan').checked;
         document.getElementById('doc-table-memperhatikan').style.display = showAttention ? 'table' : 'none';
-        if(showAttention) renderTable('doc-tbody-memperhatikan', memperhatikanItems, 'Memperhatikan', '123');
-        document.getElementById('doc-tbody-diktum').innerHTML = diktumItems.map((d, i) => `<tr><td style="width:18%; font-weight:bold">${["KESATU","KEDUA","KETIGA","KEEMPAT","KELIMA","KEENAM"][i]||i+1}</td><td style="width:2%">:</td><td style="text-align:justify">${d}</td></tr>`).join('');
+        if(showAttention) renderDocTable('memperhatikan', memperhatikanItems, 'Memperhatikan');
+
+        renderDiktumDocument();
     }
 
-    function addItem(type) { if(type==='menimbang') menimbangItems.push("bahwa..."); else if(type==='mengingat') mengingatItems.push("Peraturan..."); else diktumItems.push("..."); renderAllForms(); }
+    function renderDocTable(type, data, label) {
+        const tbody = document.getElementById(`doc-tbody-${type}`);
+        tbody.innerHTML = data.map((item, i) => `
+            <tr>
+                <td style="width:18%; font-weight:bold">${i === 0 ? label : ''}</td>
+                <td style="width:2%">${i === 0 ? ':' : ''}</td>
+                <td style="width:5%">${type === 'menimbang' ? String.fromCharCode(97 + i) + '.' : (i + 1) + '.'}</td>
+                <td style="text-align:justify">${item}</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderDiktumDocument() {
+        const romawi = ["KESATU", "KEDUA", "KETIGA", "KEEMPAT", "KELIMA", "KEENAM", "KETUJUH"];
+        document.getElementById('doc-tbody-diktum').innerHTML = diktumItems.map((d, i) => `
+            <tr>
+                <td style="width:18%; font-weight:bold">${romawi[i] || i+1}</td>
+                <td style="width:2%">:</td>
+                <td style="text-align:justify">${d}</td>
+            </tr>
+        `).join('');
+    }
+
+    function addItem(type) {
+        if(type === 'menimbang') menimbangItems.push("bahwa...");
+        else if(type === 'mengingat') mengingatItems.push("Peraturan...");
+        else if(type === 'diktum') diktumItems.push("...");
+        renderAllForms();
+    }
+
     function sync(field, val) { document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val); }
-    function syncAllBaseData() { sync('pemda', document.getElementById('in-pemda').value); sync('instansi', document.getElementById('in-instansi').value); sync('nomor', document.getElementById('in-nomor').value); sync('tentang', document.getElementById('in-tentang').value); sync('alamat', document.getElementById('in-alamat').value); }
-    function changeTab(tabId, btn) { document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active')); btn.classList.add('nav-active'); document.getElementById('main-scroll-area').scrollTo({ top: 0, behavior: 'smooth' }); }
-    function zoomPaper(val) { const p = document.getElementById('preview-paper'); p.style.transform = `scale(${val})`; p.style.marginBottom = `${(val-1)*1200}px`; }
-    
+
+    function syncAllBaseData() {
+        sync('pemda', document.getElementById('in-pemda').value);
+        sync('instansi', document.getElementById('in-instansi').value);
+        sync('nomor', document.getElementById('in-nomor').value);
+        sync('tentang', document.getElementById('in-tentang').value);
+        sync('alamat', document.getElementById('in-alamat').value);
+    }
+
+    // --- FITUR TOOLS (ZOOM, TABS, FILE) ---
+    function changeTab(tabId, btn) {
+        document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        btn.classList.add('nav-active');
+        document.getElementById('main-scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function zoomPaper(val) {
+        const p = document.getElementById('preview-paper');
+        p.style.transform = `scale(${val})`;
+        p.style.marginBottom = `${(val-1)*1200}px`; 
+    }
+
     async function processFile(e) {
         const file = e.target.files[0]; if (!file) return;
         document.getElementById('file-name-display').innerText = "Mengekstrak Konteks: " + file.name;
+        
         const reader = new FileReader();
-        if (file.type === "application/pdf") {
-            reader.onload = async function() {
-                const typedarray = new Uint8Array(this.result); const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                let text = ""; for(let i=1; i<=pdf.numPages; i++) { const page = await pdf.getPage(i); const content = await page.getTextContent(); text += content.items.map(s => s.str).join(" "); }
-                referenceText = text.substring(0, 12000); showToast("Konteks PDF Siap!", "success");
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
+        if (file.type === "text/plain") {
             reader.onload = function() { referenceText = this.result; showToast("Konteks Teks Siap!", "success"); };
             reader.readAsText(file);
+        } else if (file.type === "application/pdf") {
+            reader.onload = async function() {
+                const typedarray = new Uint8Array(this.result);
+                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                let text = "";
+                for(let i=1; i<=pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    text += content.items.map(s => s.str).join(" ");
+                }
+                referenceText = text.substring(0, 12000); 
+                showToast("Konteks PDF Siap!", "success");
+            };
+            reader.readAsArrayBuffer(file);
         }
     }
 
-    function addLampiran() { const id = Date.now(); lampiranItems.push({ id, judul: "SUSUNAN TIM DAN URAIAN TUGAS" }); renderLampiranUI(); }
+    // --- SMART LAMPIRAN SYSTEM ---
+    function addLampiran() {
+        const id = Date.now();
+        lampiranItems.push({ id, judul: "STRUKTUR ORGANISASI DAN TATA KERJA TIM", content: "" });
+        renderLampiranUI();
+    }
+
     function renderLampiranUI() {
-        document.getElementById('lampiran-edit-list').innerHTML = lampiranItems.map((l, i) => `<div class="bg-white border-2 p-6 rounded-3xl relative group"><button onclick="lampiranItems.splice(${i},1); renderLampiranUI();" class="absolute -top-3 -right-3 bg-red-500 text-white w-8 h-8 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-xmark"></i></button><label class="text-[10px] font-black text-slate-400 uppercase">Lampiran ${i+1}</label><input class="w-full border-b-2 p-2 mt-2 outline-none font-bold text-xs" value="${l.judul}" oninput="lampiranItems[${i}].judul=this.value; renderLampiranDoc();"></div>`).join('');
+        document.getElementById('lampiran-edit-list').innerHTML = lampiranItems.map((l, i) => `
+            <div class="input-card relative group">
+                <button onclick="lampiranItems.splice(${i},1); renderLampiranUI();" class="absolute -top-3 -right-3 bg-red-500 text-white w-10 h-10 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Judul Lampiran ${i+1}</label>
+                <input class="w-full border-b-2 border-slate-100 p-3 mt-2 outline-none focus:border-blue-500 font-bold text-sm bg-transparent" value="${l.judul}" oninput="lampiranItems[${i}].judul=this.value; renderLampiranDoc();">
+                <div class="mt-6">
+                    <button onclick="aiSmartLampiran(${l.id})" class="text-[9px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-all uppercase tracking-widest">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI Smart Table
+                    </button>
+                </div>
+            </div>
+        `).join('');
         renderLampiranDoc();
     }
+
     function renderLampiranDoc() {
-        const inst = document.getElementById('in-instansi').value; const num = document.getElementById('in-nomor').value; const tent = document.getElementById('in-tentang').value;
-        document.getElementById('lampiran-container').innerHTML = lampiranItems.map((l, i) => `<div class="folio-paper lampiran-paper" contenteditable="true"><table style="width:100%"><tr><td style="width:15%; font-weight:bold">LAMPIRAN</td><td>: KEPUTUSAN KEPALA ${inst}</td></tr><tr><td style="font-weight:bold">NOMOR</td><td>: ${num}</td></tr><tr><td style="font-weight:bold">TENTANG</td><td>: ${tent}</td></tr></table><h3 class="font-bold text-center uppercase mt-8">${l.judul}</h3><div style="border:1px solid black; min-height:400px; padding:20px; margin-top:20px">[ INPUT DATA TABEL ]</div></div>`).join('');
+        const instansi = document.getElementById('in-instansi').value;
+        const nomor = document.getElementById('in-nomor').value;
+        const tentang = document.getElementById('in-tentang').value;
+        
+        document.getElementById('lampiran-container').innerHTML = lampiranItems.map((l, i) => `
+            <div class="folio-paper lampiran-paper" contenteditable="true">
+                <div style="margin-bottom: 30px;">
+                    <table style="width: 100%">
+                        <tr><td style="width:15%; font-weight:bold">LAMPIRAN</td><td>: KEPUTUSAN KEPALA ${instansi}</td></tr>
+                        <tr><td style="font-weight:bold">NOMOR</td><td>: ${nomor}</td></tr>
+                        <tr><td style="font-weight:bold">TENTANG</td><td>: ${tentang}</td></tr>
+                    </table>
+                </div>
+                <h3 class="font-bold text-center uppercase" style="margin-bottom: 30px; font-size: 11pt;">${l.judul}</h3>
+                <div style="border: 1px solid black; min-height: 400px; padding: 20px; font-size: 10pt;">
+                    [ KONTEN TABEL / URAIAN TUGAS ]
+                </div>
+                
+                <div class="flex justify-end mt-20 page-break-inside-avoid">
+                    <div class="w-1/2 text-left" style="padding-left: 3.5cm;">
+                        <p class="font-bold uppercase">KEPALA <span class="doc-instansi">${instansi}</span>,</p>
+                        <br><br><br><br><br>
+                        <p class="font-bold underline">dr. FULANAH, M.Kes</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function aiSmartLampiran(id) {
+        showToast("AI Menganalisis Struktur...", "info");
     }
 
     function showToast(m, type) {
-        const el = document.getElementById('custom-toast'); const box = document.getElementById('toast-icon-box'); const msg = document.getElementById('toast-message');
-        msg.innerText = m; box.className = `w-10 h-10 rounded-full flex items-center justify-center text-white ${type==='error'?'bg-red-500':'bg-emerald-500'}`;
-        box.innerHTML = type==='error'?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-check"></i>';
-        el.className = `fixed bottom-10 right-10 px-8 py-5 rounded-[24px] shadow-2xl opacity-100 translate-y-0 transition-all z-[100] flex items-center gap-4 border-2 bg-white pointer-events-auto ${type==='error'?'border-red-50':'border-emerald-50'}`;
+        const el = document.getElementById('custom-toast');
+        const box = document.getElementById('toast-icon-box');
+        const msg = document.getElementById('toast-message');
+        
+        msg.innerText = m;
+        if(type === 'error') {
+            box.className = "w-10 h-10 rounded-full flex items-center justify-center text-white bg-red-500 shadow-lg";
+            box.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            el.className = "fixed bottom-10 right-10 px-8 py-5 rounded-[24px] shadow-2xl opacity-100 translate-y-0 transition-all duration-500 z-[100] flex items-center gap-4 border-2 border-red-50 bg-white pointer-events-auto";
+        } else {
+            box.className = "w-10 h-10 rounded-full flex items-center justify-center text-white bg-emerald-500 shadow-lg";
+            box.innerHTML = '<i class="fa-solid fa-check"></i>';
+            el.className = "fixed bottom-10 right-10 px-8 py-5 rounded-[24px] shadow-2xl opacity-100 translate-y-0 transition-all duration-500 z-[100] flex items-center gap-4 border-2 border-emerald-50 bg-white pointer-events-auto";
+        }
         setTimeout(() => { el.style.opacity = 0; el.style.transform = "translateY(20px)"; }, 4000);
     }
 </script>
