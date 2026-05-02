@@ -193,12 +193,12 @@
 
                         <button onclick="aiGenerate('legal')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 flex justify-center items-center gap-2 transition-transform active:scale-[0.98]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-                            GENERATE KONSIDERAN (LIVE AI)
+                            GENERATE KONSIDERAN (AI CERDAS)
                         </button>
                         
                         <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl border border-slate-100">
                             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            <p class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Browsing Aturan Terbaru & Menyusun Landasan...</p>
+                            <p class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Menyusun Landasan Hukum (Mengingat & Menimbang)...</p>
                         </div>
 
                         <div class="pt-4 border-t border-slate-200 mt-6">
@@ -211,7 +211,7 @@
                 <div id="tab-diktum" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-6">
                         <button onclick="aiGenerate('diktum')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 flex justify-center items-center gap-2 transition-transform active:scale-[0.98]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             GENERATE POIN DIKTUM (AI)
                         </button>
                         
@@ -312,7 +312,8 @@
     </div>
 
 <script>
-    // === KONFIGURASI LINGKUNGAN CANVAS & DASHBOARD ===
+    // === KONFIGURASI LINGKUNGAN CANVAS ===
+    // PERBAIKAN: Diubah menjadi 'let' agar bisa menerima kunci dari Dashboard
     let apiKey = sessionStorage.getItem('sehati_api_key') || ""; 
 
     let referenceText = ""; 
@@ -446,15 +447,22 @@
         }
     }
 
-    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH
+    // 3. AI LOGIC & API (TANPA GOOGLE SEARCH - MURNI KECERDASAN INTERNAL)
     async function callGemini(prompt, schema) {
-        const modelId = "gemini-2.5-flash-preview-09-2025";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+        let currentKey = apiKey || sessionStorage.getItem('sehati_api_key');
+        if (!currentKey) {
+            showToast("API Key belum terhubung dengan Portal Dashboard.", "error");
+            if (window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+            throw new Error("API Key kosong");
+        }
+
+        const modelId = "gemini-1.5-flash"; // PERBAIKAN: Model stabil, tidak menyebabkan 404
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${currentKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ google_search: {} }], // Live Grounding Aktif
-            generationConfig: { responseMimeType: "application/json", responseSchema: schema }
+            // Live Grounding (Google Search) dimatikan agar stabil, AI pakai kecerdasan internal
+            generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.1 }
         };
 
         let retries = 5;
@@ -660,7 +668,8 @@
                     required: ["menimbang", "mengingat"]
                 };
                 
-                const promptText = `Anda sedang menyusun konsideran Surat Keputusan (SK).\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nTUGAS PENTING: Gunakan fitur penelusuran web (Google Search) untuk mencari regulasi dan peraturan menteri kesehatan terbaru yang relevan dengan topik ini. Pastikan landasan hukum di bagian 'Mengingat' akurat dengan UU dan Peraturan Menteri yang berlaku saat ini.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
+                // PERBAIKAN PROMPT: Instruksikan AI untuk menggunakan memori internal karena Live Browsing dimatikan
+                const promptText = `Anda adalah Ahli Hukum Tata Negara dan Konsultan Manajemen Fasyankes yang sangat cerdas.\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nTUGAS PENTING: Susun konsideran Surat Keputusan (SK) Kepala Fasyankes.\nSyarat Mutlak 'Mengingat':\n1. WAJIB mencantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan".\n2. Gunakan memori internal dan kecerdasan Anda untuk memilah dan mengurutkan hierarki dasar hukum (UU, PP, Perpres, PMK) yang paling relevan dengan SK ini.\n3. Jangan mengarang nomor UU/PMK palsu.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
 
                 const res = await callGemini(promptText, schema);
                 
@@ -669,7 +678,7 @@
                 if (useMemperhatikan) memperhatikanItems = res.memperhatikan || [];
                 
                 renderKonsideranForm();
-                showToast("Konsideran berhasil disintesis menggunakan Live Web Search", "success");
+                showToast("Konsideran berhasil disintesis oleh AI", "success");
                 document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
 
             } else if(mode === 'diktum') {
@@ -681,12 +690,10 @@
                 
                 const contextKonsideran = `Bagian Menimbang: ${menimbangItems.join(' ')}. \nBagian Mengingat: ${mengingatItems.join(' ')}.`;
                 
-                // PERBAIKAN 1: Instruksi ketat agar AI tidak menambahkan awalan diktum
                 const promptText = `Buatkan poin-poin DIKTUM (keputusan inti) untuk SK.\n${fasyankesContext}\n\nBerdasarkan landasan/konsideran berikut:\n${contextKonsideran}\n${refContext}\n\nSusun poin keputusannya dengan runut, spesifik merujuk ke nama fasyankes, dan aplikatif. TUGAS PENTING: JANGAN tuliskan kata penomoran seperti "KESATU:", "KEDUA:", atau angka "1.", "2." di awal kalimat. Langsung tuliskan isi keputusannya saja pada setiap elemen array.`;
 
                 const res = await callGemini(promptText, schema);
                 
-                // PERBAIKAN 1 (Safety Net): Filter regex jika AI bandel masih menyertakan KESATU: dll
                 const cleanItems = (res.items || []).map(item => {
                     return item.replace(/^(KESATU|KEDUA|KETIGA|KEEMPAT|KELIMA|KEENAM|KETUJUH|KEDELAPAN|KESEMBILAN|KESEPULUH|\d+\.)\s*[:.-]?\s*/i, '').trim();
                 });
@@ -814,7 +821,6 @@
         sync('tentang', tentang);
     }
 
-    // FOKUS INPUT TERJAGA
     function updateLampJudul(id, val) { 
         const item = lampiranItems.find(x => x.id === id);
         if (item) item.judul = val; 
@@ -825,10 +831,8 @@
     function updateLampContext(id, val) {
         const item = lampiranItems.find(x => x.id === id);
         if (item) item.context = val; 
-        // Tidak perlu re-render karena ini hanya merubah state instruksi internal
     }
 
-    // PROSES FILE KHUSUS LAMPIRAN
     async function processLampiranFile(e, id) {
         const file = e.target.files[0];
         if (!file) return;
@@ -849,7 +853,7 @@
                         const content = await page.getTextContent();
                         fullText += content.items.map(s => s.str).join(" ") + " ";
                     }
-                    l.fileText = fullText.substring(0, 10000); // Ambil maks 10rb karakter
+                    l.fileText = fullText.substring(0, 10000); 
                     l.fileName = file.name;
                     showToast("Referensi khusus lampiran berhasil dibaca.", "success");
                     renderLampiranUI();
@@ -898,7 +902,6 @@
             const fasyankesContext = getContextFasyankes();
             const contextDiktum = `Keputusan/Diktum SK terkait: ${diktumItems.join(' ')}`;
             
-            // GABUNGKAN SEMUA KONTEKS SPESIFIK LAMPIRAN
             let specificContext = "";
             if (l.context) specificContext += `\nInstruksi Khusus dari Pengguna: ${l.context}`;
             if (l.fileText) specificContext += `\nReferensi Dokumen Khusus Lampiran Ini (Ekstrak tabel/data dari sini): ${l.fileText}`;
