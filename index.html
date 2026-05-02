@@ -73,17 +73,18 @@
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1.01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">v4.5 (Context & Smart Lampiran)</span></h1>
+                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">Terintegrasi Portal SEHATI</span></h1>
             </div>
             
             <div class="flex items-center gap-6">
-                <div id="sync-indicator" class="text-xs text-green-600 font-medium flex items-center gap-1.5 opacity-0 transition-opacity">
+                <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity opacity-100">
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </span>
-                    Tersinkronisasi
+                    AI Belum Terhubung
                 </div>
+
                 <div class="w-px h-6 bg-slate-200"></div>
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">Zoom</span>
@@ -182,6 +183,14 @@
                                 Arahan Khusus AI
                             </label>
                             <textarea id="in-legal-info" class="w-full border border-indigo-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-400 outline-none min-h-[100px] shadow-inner custom-scroll bg-white" placeholder="Contoh: Rujuk PMK No 11, pastikan mencantumkan UU Kesehatan terbaru..."></textarea>
+                            
+                            <div class="flex items-center gap-3 mt-4 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm">
+                                <input type="checkbox" id="chk-live-browsing" class="w-5 h-5 accent-indigo-600 cursor-pointer">
+                                <div class="flex flex-col">
+                                    <label for="chk-live-browsing" class="text-sm font-bold text-indigo-800 cursor-pointer select-none">Aktifkan Live Browsing (Google Search)</label>
+                                    <span class="text-[10px] text-slate-500">Centang untuk mencari referensi UU/PMK di internet secara real-time. Jika macet/gagal, matikan centang ini.</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-between">
@@ -193,12 +202,12 @@
 
                         <button onclick="aiGenerate('legal')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 flex justify-center items-center gap-2 transition-transform active:scale-[0.98]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-                            GENERATE KONSIDERAN (AI CERDAS)
+                            GENERATE KONSIDERAN (AI)
                         </button>
                         
                         <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl border border-slate-100">
                             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            <p class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Menyusun Landasan Hukum (Mengingat & Menimbang)...</p>
+                            <p class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Browsing Aturan Terbaru & Menyusun Landasan...</p>
                         </div>
 
                         <div class="pt-4 border-t border-slate-200 mt-6">
@@ -211,7 +220,7 @@
                 <div id="tab-diktum" class="tab-panel">
                     <div class="max-w-4xl mx-auto space-y-6">
                         <button onclick="aiGenerate('diktum')" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 flex justify-center items-center gap-2 transition-transform active:scale-[0.98]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             GENERATE POIN DIKTUM (AI)
                         </button>
                         
@@ -313,7 +322,6 @@
 
 <script>
     // === KONFIGURASI LINGKUNGAN CANVAS ===
-    // PERBAIKAN: Diubah menjadi 'let' agar bisa menerima kunci dari Dashboard
     let apiKey = sessionStorage.getItem('sehati_api_key') || ""; 
 
     let referenceText = ""; 
@@ -358,7 +366,7 @@
     function sync(field, val) {
         document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val);
         const indicator = document.getElementById('sync-indicator');
-        if (indicator) {
+        if (indicator && !apiKey) {
             indicator.style.opacity = 1;
             setTimeout(() => indicator.style.opacity = 0, 1500);
         }
@@ -447,8 +455,8 @@
         }
     }
 
-    // 3. AI LOGIC & API (TANPA GOOGLE SEARCH - MURNI KECERDASAN INTERNAL)
-    async function callGemini(prompt, schema) {
+    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH
+    async function callGemini(prompt, schema, useSearch = false) {
         let currentKey = apiKey || sessionStorage.getItem('sehati_api_key');
         if (!currentKey) {
             showToast("API Key belum terhubung dengan Portal Dashboard.", "error");
@@ -456,14 +464,18 @@
             throw new Error("API Key kosong");
         }
 
-        const modelId = "gemini-1.5-flash"; // PERBAIKAN: Model stabil, tidak menyebabkan 404
+        const modelId = "gemini-1.5-flash"; 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${currentKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
-            // Live Grounding (Google Search) dimatikan agar stabil, AI pakai kecerdasan internal
             generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.1 }
         };
+
+        // Inject Search Tool jika Toggle Dicentang
+        if (useSearch) {
+            payload.tools = [{ googleSearch: {} }];
+        }
 
         let retries = 5;
         let delays = [1000, 2000, 4000, 8000, 16000];
@@ -668,17 +680,24 @@
                     required: ["menimbang", "mengingat"]
                 };
                 
-                // PERBAIKAN PROMPT: Instruksikan AI untuk menggunakan memori internal karena Live Browsing dimatikan
-                const promptText = `Anda adalah Ahli Hukum Tata Negara dan Konsultan Manajemen Fasyankes yang sangat cerdas.\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nTUGAS PENTING: Susun konsideran Surat Keputusan (SK) Kepala Fasyankes.\nSyarat Mutlak 'Mengingat':\n1. WAJIB mencantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan".\n2. Gunakan memori internal dan kecerdasan Anda untuk memilah dan mengurutkan hierarki dasar hukum (UU, PP, Perpres, PMK) yang paling relevan dengan SK ini.\n3. Jangan mengarang nomor UU/PMK palsu.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
+                const chkLive = document.getElementById('chk-live-browsing');
+                const isLive = chkLive ? chkLive.checked : false;
+                let promptText = "";
+                
+                if (isLive) {
+                    promptText = `Anda sedang menyusun konsideran Surat Keputusan (SK).\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nTUGAS PENTING: Gunakan fitur penelusuran web (Google Search) untuk mencari regulasi dan peraturan menteri kesehatan terbaru yang relevan dengan topik ini. Pastikan landasan hukum di bagian 'Mengingat' akurat dengan UU dan Peraturan Menteri yang berlaku saat ini.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
+                } else {
+                    promptText = `Anda Ahli Hukum Tata Negara dan Konsultan Manajemen Fasyankes.\nTUGAS: Buat konsideran Surat Keputusan (SK) Kepala Fasyankes.\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nSYARAT MUTLAK UNTUK "MENGINGAT":\n1. WAJIB mencantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan".\n2. Gunakan memori internal Anda untuk mencari Peraturan Menteri Kesehatan (PMK) terbaru yang relevan dengan topik SK ini.\n3. Urutkan hierarki dari UU, PP, Perpres, hingga PMK. JANGAN MENGARANG NOMOR UU/PMK PALSU.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
+                }
 
-                const res = await callGemini(promptText, schema);
+                const res = await callGemini(promptText, schema, isLive);
                 
                 menimbangItems = res.menimbang || [];
                 mengingatItems = res.mengingat || [];
                 if (useMemperhatikan) memperhatikanItems = res.memperhatikan || [];
                 
                 renderKonsideranForm();
-                showToast("Konsideran berhasil disintesis oleh AI", "success");
+                showToast(isLive ? "Sintesis Live Web Search Berhasil" : "Sintesis Cerdas AI Berhasil", "success");
                 document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
 
             } else if(mode === 'diktum') {
@@ -692,7 +711,7 @@
                 
                 const promptText = `Buatkan poin-poin DIKTUM (keputusan inti) untuk SK.\n${fasyankesContext}\n\nBerdasarkan landasan/konsideran berikut:\n${contextKonsideran}\n${refContext}\n\nSusun poin keputusannya dengan runut, spesifik merujuk ke nama fasyankes, dan aplikatif. TUGAS PENTING: JANGAN tuliskan kata penomoran seperti "KESATU:", "KEDUA:", atau angka "1.", "2." di awal kalimat. Langsung tuliskan isi keputusannya saja pada setiap elemen array.`;
 
-                const res = await callGemini(promptText, schema);
+                const res = await callGemini(promptText, schema, false);
                 
                 const cleanItems = (res.items || []).map(item => {
                     return item.replace(/^(KESATU|KEDUA|KETIGA|KEEMPAT|KELIMA|KEENAM|KETUJUH|KEDELAPAN|KESEMBILAN|KESEPULUH|\d+\.)\s*[:.-]?\s*/i, '').trim();
@@ -716,8 +735,8 @@
         lampiranItems.push({ 
             id, 
             judul: "SUSUNAN TIM", 
-            context: "",    // Input Manual Opsional untuk Lampiran
-            fileText: "",   // PDF referensi khusus Lampiran
+            context: "",    
+            fileText: "",   
             fileName: "",
             headers: ["No", "Nama / Jabatan", "Peran dalam Tim", "Keterangan"], 
             rows: [["1", "dr. Fulan", "Ketua Tim", "-"], ["2", "Suster Fulanah", "Sekretaris", "-"]] 
@@ -908,7 +927,7 @@
             
             const promptText = `Buatkan tabel terstruktur untuk lampiran SK.\n${fasyankesContext}\nJudul Lampiran: ${l.judul}.\n${contextDiktum}${specificContext}\n\nTUGAS: Buatkan kolom header yang relevan. Jika pengguna menyertakan referensi dokumen khusus, prioritaskan untuk mengekstrak data dari dokumen tersebut ke dalam tabel. Jika tidak ada, buatkan baris contoh logis berdasarkan fasyankes tersebut.`;
 
-            const res = await callGemini(promptText, schema);
+            const res = await callGemini(promptText, schema, false);
             l.headers = res.headers; 
             l.rows = res.rows.map(row => row.cells || []);
             
@@ -948,7 +967,7 @@
         }
 
         // 3. Minta kunci ke Dashboard (Handshake) jika API Key masih kosong
-        if (window.parent !== window) {
+        if (!apiKey && window.parent !== window) {
             window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
         }
 
