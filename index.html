@@ -77,12 +77,12 @@
             </div>
             
             <div class="flex items-center gap-6">
-                <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity">
+                <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity opacity-100">
                     <span class="relative flex h-2 w-2">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </span>
-                    Koneksi AI Terputus
+                    AI Belum Terhubung
                 </div>
 
                 <div class="w-px h-6 bg-slate-200"></div>
@@ -315,6 +315,7 @@
 <script>
     // === INTEGRASI PORTAL SEHATI - AI ===
     let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
+
     let referenceText = ""; 
     
     // Default Data State
@@ -337,50 +338,6 @@
             ind.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Koneksi Aktif`;
         }
     }
-
-    // Init & Integrasi Portal
-    window.addEventListener('DOMContentLoaded', () => { 
-        // 1. Minta kunci langsung ke Dashboard jika berada di dalam Iframe (Taktik Berteriak)
-        if (window.parent !== window) {
-            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
-        }
-
-        // 2. Cek Parameter URL jika Dashboard gagal memberikan lewat pesan
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyFromUrl = urlParams.get('key');
-        if (keyFromUrl) {
-            userApiKey = keyFromUrl;
-            sessionStorage.setItem('sehati_api_key', userApiKey);
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
-            updateSyncStatus();
-        } else if (userApiKey) {
-            updateSyncStatus();
-        }
-
-        // 3. Pendengar Pesan (Menerima Suntikan Kunci dari Dashboard)
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'UPDATE_API_KEY') {
-                userApiKey = event.data.key;
-                sessionStorage.setItem('sehati_api_key', userApiKey);
-                updateSyncStatus();
-                // Hanya munculkan notifikasi jika ini pergantian kunci (bukan inisialisasi awal)
-                if (keyFromUrl !== event.data.key) {
-                    showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
-                }
-            }
-        });
-
-        // Render Awal UI
-        renderKonsideranForm();
-        renderDiktumForm(); 
-        renderLampiranUI(); 
-        
-        sync('pemda', document.getElementById('in-pemda').value);
-        sync('instansi', document.getElementById('in-instansi').value);
-        sync('nomor', document.getElementById('in-nomor').value);
-        sync('tentang', document.getElementById('in-tentang').value);
-    });
 
     // 1. UI CORE
     function changeTab(tabId, btn) {
@@ -409,6 +366,9 @@
 
     function sync(field, val) {
         document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val);
+        const indicator = document.getElementById('sync-indicator');
+        indicator.style.opacity = 1;
+        setTimeout(() => indicator.style.opacity = 0, 1500);
     }
 
     function toggleMemperhatikan(checked) {
@@ -754,7 +714,7 @@
                 document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
             }
         } catch(e) { 
-            showToast(e.message, "error");
+            showToast("Gagal memproses AI: " + e.message, "error");
         } finally {
             if(loader) loader.classList.add('hidden');
         }
@@ -975,6 +935,49 @@
         renderLampiranUI(); 
         showToast("Lampiran dihapus", "info");
     }
+
+    // === INISIALISASI & INTEGRASI PORTAL ===
+    window.addEventListener('DOMContentLoaded', () => { 
+        // 1. Minta kunci ke Dashboard
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        }
+        
+        // 2. Cek URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyFromUrl = urlParams.get('key');
+        if (keyFromUrl) {
+            userApiKey = keyFromUrl;
+            sessionStorage.setItem('sehati_api_key', userApiKey);
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+            updateSyncStatus();
+        } else if (userApiKey) {
+            updateSyncStatus();
+        }
+
+        // 3. Listener rotasi kunci
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'UPDATE_API_KEY') {
+                userApiKey = event.data.key;
+                sessionStorage.setItem('sehati_api_key', userApiKey);
+                updateSyncStatus();
+                if (keyFromUrl !== event.data.key) {
+                    showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
+                }
+            }
+        });
+
+        // 4. Render UI
+        renderKonsideranForm();
+        renderDiktumForm(); 
+        renderLampiranUI(); 
+        
+        sync('pemda', document.getElementById('in-pemda').value);
+        sync('instansi', document.getElementById('in-instansi').value);
+        sync('nomor', document.getElementById('in-nomor').value);
+        sync('tentang', document.getElementById('in-tentang').value);
+    });
 </script>
 </body>
 </html>
