@@ -73,10 +73,18 @@
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1.01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">Terintegrasi Portal SEHATI</span></h1>
+                <h1 class="text-lg font-bold text-slate-800">SK-GEN <span class="text-xs font-light text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">Testing Mode API</span></h1>
             </div>
             
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4">
+                
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-lg shadow-inner">
+                    <input type="password" id="manual-api-key" placeholder="Paste API Key di sini..." class="text-xs p-1.5 outline-none w-48 bg-transparent text-slate-700 font-medium">
+                    <button onclick="setManualKey()" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded transition">KONEK</button>
+                </div>
+
+                <div class="w-px h-6 bg-slate-200 ml-2"></div>
+
                 <div id="sync-indicator" class="text-xs text-red-500 font-bold flex items-center gap-1.5 transition-opacity opacity-100">
                     <span class="relative flex h-2 w-2">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -85,7 +93,8 @@
                     AI Belum Terhubung
                 </div>
 
-                <div class="w-px h-6 bg-slate-200"></div>
+                <div class="w-px h-6 bg-slate-200 ml-2"></div>
+                
                 <div class="flex items-center gap-3">
                     <span class="text-[10px] font-bold text-slate-400 uppercase">Zoom</span>
                     <input type="range" min="0.5" max="1.5" step="0.05" value="1" class="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="zoomPaper(this.value)">
@@ -184,11 +193,11 @@
                             </label>
                             <textarea id="in-legal-info" class="w-full border border-indigo-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-400 outline-none min-h-[100px] shadow-inner custom-scroll bg-white" placeholder="Contoh: Rujuk PMK No 11, pastikan mencantumkan UU Kesehatan terbaru..."></textarea>
                             
-                            <div class="flex items-center gap-3 mt-4 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm">
-                                <input type="checkbox" id="chk-live-browsing" class="w-5 h-5 accent-indigo-600 cursor-pointer">
-                                <div class="flex flex-col">
-                                    <label for="chk-live-browsing" class="text-sm font-bold text-indigo-800 cursor-pointer select-none">Aktifkan Live Browsing (Google Search)</label>
-                                    <span class="text-[10px] text-slate-500">Centang untuk mencari referensi UU/PMK di internet secara real-time. Jika macet/gagal, matikan centang ini.</span>
+                            <div class="flex items-center gap-3 mt-4 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm cursor-pointer" onclick="document.getElementById('chk-live-browsing').click()">
+                                <input type="checkbox" id="chk-live-browsing" class="w-5 h-5 accent-indigo-600 cursor-pointer" onclick="event.stopPropagation()">
+                                <div class="flex flex-col select-none">
+                                    <label class="text-sm font-bold text-indigo-800 cursor-pointer">Aktifkan Live Browsing (Google Search)</label>
+                                    <span class="text-[10px] text-slate-500">Centang untuk mencari aturan terbaru. Jika macet/error, hilangkan centangnya.</span>
                                 </div>
                             </div>
                         </div>
@@ -207,7 +216,7 @@
                         
                         <div id="loader-legal" class="hidden text-center py-4 bg-slate-50 rounded-xl border border-slate-100">
                             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            <p class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Browsing Aturan Terbaru & Menyusun Landasan...</p>
+                            <p id="legal-loader-text" class="text-xs text-slate-500 mt-3 font-bold tracking-widest uppercase animate-pulse">Menyusun Landasan Hukum...</p>
                         </div>
 
                         <div class="pt-4 border-t border-slate-200 mt-6">
@@ -322,7 +331,7 @@
 
 <script>
     // === KONFIGURASI LINGKUNGAN CANVAS ===
-    let apiKey = sessionStorage.getItem('sehati_api_key') || ""; 
+    let userApiKey = sessionStorage.getItem('sehati_api_key') || ""; 
 
     let referenceText = ""; 
     
@@ -337,6 +346,28 @@
     ];
     let lampiranItems = [];
     let toastTimeout;
+
+    // UPDATE STATUS INDIKATOR
+    function updateSyncStatus() {
+        const ind = document.getElementById('sync-indicator');
+        if (ind && userApiKey) {
+            ind.className = "text-xs text-green-600 font-bold flex items-center gap-1.5 transition-opacity opacity-100";
+            ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> Koneksi AI Aktif`;
+        }
+    }
+
+    // FUNGSI SET API KEY MANUAL (TESTING)
+    function setManualKey() {
+        const keyInput = document.getElementById('manual-api-key').value.trim();
+        if(keyInput) {
+            userApiKey = keyInput;
+            sessionStorage.setItem('sehati_api_key', keyInput);
+            updateSyncStatus();
+            showToast("API Key Manual Berhasil Disimpan!", "success");
+        } else {
+            showToast("API Key tidak boleh kosong!", "error");
+        }
+    }
 
     // 1. UI CORE
     function changeTab(tabId, btn) {
@@ -366,7 +397,7 @@
     function sync(field, val) {
         document.querySelectorAll(`.doc-${field}`).forEach(el => el.innerText = val);
         const indicator = document.getElementById('sync-indicator');
-        if (indicator && !apiKey) {
+        if (indicator && !userApiKey) {
             indicator.style.opacity = 1;
             setTimeout(() => indicator.style.opacity = 0, 1500);
         }
@@ -455,30 +486,30 @@
         }
     }
 
-    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH
-    async function callGemini(prompt, schema, useSearch = false) {
-        let currentKey = apiKey || sessionStorage.getItem('sehati_api_key');
-        if (!currentKey) {
-            showToast("API Key belum terhubung dengan Portal Dashboard.", "error");
+    // 3. AI LOGIC & API DENGAN GOOGLE SEARCH GROUNDING
+    async function callGemini(prompt, schema) {
+        if (!userApiKey) {
+            showToast("API Key belum terhubung. Silakan paste di atas lalu klik KONEK.", "error");
             if (window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
             throw new Error("API Key kosong");
         }
 
         const modelId = "gemini-1.5-flash"; 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${currentKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${userApiKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.1 }
         };
 
-        // Inject Search Tool jika Toggle Dicentang
-        if (useSearch) {
-            payload.tools = [{ googleSearch: {} }];
+        // CEK TOGGLE LIVE BROWSING
+        const chkLive = document.getElementById('chk-live-browsing');
+        if (chkLive && chkLive.checked) {
+            payload.tools = [{ googleSearch: {} }]; 
         }
 
-        let retries = 5;
-        let delays = [1000, 2000, 4000, 8000, 16000];
+        let retries = 3;
+        let delays = [1000, 2000, 4000];
         let attempt = 0;
 
         while (retries > 0) {
@@ -490,16 +521,21 @@
                 });
                 
                 if (!res.ok) {
-                    if (res.status === 429 && window.parent !== window) {
-                        window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+                    if (res.status === 400) throw new Error("Kunci API salah atau tidak valid.");
+                    if (res.status === 429) {
+                        if (window.parent !== window) window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+                        throw new Error("RATE_LIMIT");
                     }
                     throw new Error(`HTTP Error ${res.status}`);
                 }
+                
                 const data = await res.json();
                 const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!textResponse) throw new Error("Format respons tidak valid dari AI.");
                 return JSON.parse(textResponse);
             } catch (error) {
+                if (error.message.includes("Kunci API") || error.message.includes("RATE_LIMIT")) throw error;
+                
                 retries--;
                 if (retries === 0) throw error; 
                 await new Promise(resolve => setTimeout(resolve, delays[attempt]));
@@ -682,22 +718,27 @@
                 
                 const chkLive = document.getElementById('chk-live-browsing');
                 const isLive = chkLive ? chkLive.checked : false;
+
+                const loaderText = document.getElementById('legal-loader-text');
+                if(loaderText) {
+                    loaderText.innerText = isLive ? "Browsing Aturan Terbaru di Google & Menyusun Landasan..." : "Menyusun Landasan Hukum dari Memori AI...";
+                }
+
                 let promptText = "";
-                
-                if (isLive) {
+                if(isLive) {
                     promptText = `Anda sedang menyusun konsideran Surat Keputusan (SK).\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nTUGAS PENTING: Gunakan fitur penelusuran web (Google Search) untuk mencari regulasi dan peraturan menteri kesehatan terbaru yang relevan dengan topik ini. Pastikan landasan hukum di bagian 'Mengingat' akurat dengan UU dan Peraturan Menteri yang berlaku saat ini.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
                 } else {
                     promptText = `Anda Ahli Hukum Tata Negara dan Konsultan Manajemen Fasyankes.\nTUGAS: Buat konsideran Surat Keputusan (SK) Kepala Fasyankes.\n${fasyankesContext}\nArahan khusus pengguna: ${arahan}. ${refContext}\n\nSYARAT MUTLAK UNTUK "MENGINGAT":\n1. WAJIB mencantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan".\n2. Gunakan memori internal Anda untuk mencari Peraturan Menteri Kesehatan (PMK) terbaru yang relevan dengan topik SK ini.\n3. Urutkan hierarki dari UU, PP, Perpres, hingga PMK. JANGAN MENGARANG NOMOR UU/PMK PALSU.\n\nSusun hasilnya dengan gaya bahasa hukum tata negara Indonesia baku.`;
                 }
 
-                const res = await callGemini(promptText, schema, isLive);
+                const res = await callGemini(promptText, schema);
                 
                 menimbangItems = res.menimbang || [];
                 mengingatItems = res.mengingat || [];
                 if (useMemperhatikan) memperhatikanItems = res.memperhatikan || [];
                 
                 renderKonsideranForm();
-                showToast(isLive ? "Sintesis Live Web Search Berhasil" : "Sintesis Cerdas AI Berhasil", "success");
+                showToast(isLive ? "Sintesis Live Google Search Berhasil" : "Sintesis Memori AI Berhasil", "success");
                 document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
 
             } else if(mode === 'diktum') {
@@ -711,7 +752,7 @@
                 
                 const promptText = `Buatkan poin-poin DIKTUM (keputusan inti) untuk SK.\n${fasyankesContext}\n\nBerdasarkan landasan/konsideran berikut:\n${contextKonsideran}\n${refContext}\n\nSusun poin keputusannya dengan runut, spesifik merujuk ke nama fasyankes, dan aplikatif. TUGAS PENTING: JANGAN tuliskan kata penomoran seperti "KESATU:", "KEDUA:", atau angka "1.", "2." di awal kalimat. Langsung tuliskan isi keputusannya saja pada setiap elemen array.`;
 
-                const res = await callGemini(promptText, schema, false);
+                const res = await callGemini(promptText, schema);
                 
                 const cleanItems = (res.items || []).map(item => {
                     return item.replace(/^(KESATU|KEDUA|KETIGA|KEEMPAT|KELIMA|KEENAM|KETUJUH|KEDELAPAN|KESEMBILAN|KESEPULUH|\d+\.)\s*[:.-]?\s*/i, '').trim();
@@ -723,7 +764,7 @@
                 document.getElementById('main-scroll-area').scrollBy({ top: 400, behavior: 'smooth' });
             }
         } catch(e) { 
-            showToast("Gagal memproses AI: " + e.message, "error");
+            showToast(e.message, "error");
         } finally {
             if(loader) loader.classList.add('hidden');
         }
@@ -927,7 +968,7 @@
             
             const promptText = `Buatkan tabel terstruktur untuk lampiran SK.\n${fasyankesContext}\nJudul Lampiran: ${l.judul}.\n${contextDiktum}${specificContext}\n\nTUGAS: Buatkan kolom header yang relevan. Jika pengguna menyertakan referensi dokumen khusus, prioritaskan untuk mengekstrak data dari dokumen tersebut ke dalam tabel. Jika tidak ada, buatkan baris contoh logis berdasarkan fasyankes tersebut.`;
 
-            const res = await callGemini(promptText, schema, false);
+            const res = await callGemini(promptText, schema);
             l.headers = res.headers; 
             l.rows = res.rows.map(row => row.cells || []);
             
@@ -945,45 +986,39 @@
         showToast("Lampiran dihapus", "info");
     }
 
-    // Init
-    window.onload = () => { 
-        // 1. Ambil API Key dari URL jika dibuka via Dashboard
+    // === INISIALISASI & INTEGRASI PORTAL ===
+    window.addEventListener('DOMContentLoaded', () => { 
+        // 1. Minta kunci ke Dashboard
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        }
+        
+        // 2. Cek URL
         const urlParams = new URLSearchParams(window.location.search);
         const keyFromUrl = urlParams.get('key');
         if (keyFromUrl) {
-            apiKey = keyFromUrl;
-            sessionStorage.setItem('sehati_api_key', apiKey);
+            userApiKey = keyFromUrl;
+            sessionStorage.setItem('sehati_api_key', userApiKey);
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+            updateSyncStatus();
+        } else if (userApiKey) {
+            updateSyncStatus();
         }
 
-        // 2. Tampilkan indikator jika API Key sudah ada
-        if (apiKey) {
-            const indicator = document.getElementById('sync-indicator');
-            if (indicator) {
-                indicator.style.opacity = 1;
-                indicator.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>Tersinkronisasi`;
-            }
-        }
-
-        // 3. Minta kunci ke Dashboard (Handshake) jika API Key masih kosong
-        if (!apiKey && window.parent !== window) {
-            window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
-        }
-
-        // 4. Dengarkan suntikan kunci dari Dashboard
+        // 3. Listener rotasi kunci
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'UPDATE_API_KEY') {
-                apiKey = event.data.key;
-                sessionStorage.setItem('sehati_api_key', apiKey);
-                const indicator = document.getElementById('sync-indicator');
-                if (indicator) {
-                    indicator.style.opacity = 1;
-                    indicator.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>Tersinkronisasi`;
+                userApiKey = event.data.key;
+                sessionStorage.setItem('sehati_api_key', userApiKey);
+                updateSyncStatus();
+                if (keyFromUrl !== event.data.key) {
+                    showToast("🔄 Sesi dipertahankan! API Key diputar otomatis dari Portal.", "info");
                 }
             }
         });
 
+        // 4. Render UI
         renderKonsideranForm();
         renderDiktumForm(); 
         renderLampiranUI(); 
@@ -992,7 +1027,7 @@
         sync('instansi', document.getElementById('in-instansi').value);
         sync('nomor', document.getElementById('in-nomor').value);
         sync('tentang', document.getElementById('in-tentang').value);
-    }
+    });
 </script>
 </body>
 </html>
