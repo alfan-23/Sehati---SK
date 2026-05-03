@@ -56,6 +56,20 @@
 </head>
 <body class="flex flex-col h-screen overflow-hidden bg-slate-100">
 
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyFromUrl = urlParams.get('key');
+        const modelFromUrl = urlParams.get('model');
+        
+        if (keyFromUrl) sessionStorage.setItem('sehati_api_key', keyFromUrl);
+        if (modelFromUrl) sessionStorage.setItem('sehati_ai_model', modelFromUrl);
+        
+        if (keyFromUrl || modelFromUrl) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+        }
+    </script>
+
     <header class="bg-white border-b border-slate-200 flex flex-col no-print shrink-0 shadow-sm z-30">
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
             <div class="flex items-center gap-3">
@@ -291,6 +305,10 @@
     let referenceText = ""; 
     let toastTimeout;
     
+    // Penampung aksi terakhir jika menunggu rotasi otomatis
+    let isWaitingForRetry = null;
+    let lastFailedAction = null;
+    
     let menimbangItems = ["bahwa dalam rangka meningkatkan mutu pelayanan pada UPTD Puskesmas Percontohan, diperlukan tim khusus;"];
     let mengingatItems = ["Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;"];
     let memperhatikanItems = ["Pedoman Akreditasi Puskesmas dan Hasil Rapat Kerja Mutu;"];
@@ -326,7 +344,7 @@
         const ping = document.getElementById('ping-status');
         if (apiKey) {
             ind.className = "text-xs text-green-600 font-bold flex items-center gap-1.5 transition-opacity opacity-100";
-            text.innerText = "AI Tersambung";
+            text.innerText = `AI Tersambung (${apiModel})`;
             dot.className = "relative inline-flex rounded-full h-2 w-2 bg-green-500";
             ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
         }
@@ -384,6 +402,7 @@
             localStorage.setItem('skgen_apikey', apiKey);
             localStorage.setItem('skgen_model', apiModel);
             sessionStorage.setItem('sehati_api_key', apiKey);
+            sessionStorage.setItem('sehati_ai_model', apiModel);
             updateSyncStatus(); 
             toggleApiModal(); 
             showToast(`API Key dan Model (${apiModel}) Disimpan.`, "success");
@@ -393,20 +412,8 @@
     }
 
     function loadApiKeys() {
-        const savedKey = localStorage.getItem('skgen_apikey');
-        if (savedKey) {
-            apiKey = savedKey;
-            sessionStorage.setItem('sehati_api_key', apiKey);
-        } else if (sessionStorage.getItem('sehati_api_key')) {
-            apiKey = sessionStorage.getItem('sehati_api_key');
-        }
-        
-        const savedModel = localStorage.getItem('skgen_model');
-        if (savedModel) {
-            apiModel = savedModel;
-        } else {
-            apiModel = 'gemini-2.5-flash';
-        }
+        apiKey = sessionStorage.getItem('sehati_api_key') || localStorage.getItem('skgen_apikey') || "";
+        apiModel = sessionStorage.getItem('sehati_ai_model') || localStorage.getItem('skgen_model') || 'gemini-2.5-flash';
     }
 
     async function testApiKey() {
@@ -446,7 +453,7 @@
         }
     }
 
-    // === MESIN AI GENERATOR ===
+    // === MESIN AI GENERATOR (DENGAN SIKLUS ROTASI AUTO-RETRY) ===
     async function callGemini(prompt, schema) {
         if (!apiKey) {
             toggleApiModal();
@@ -470,22 +477,38 @@
             payload.tools = [{ googleSearch: {} }];
         }
 
-        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            const msg = errorData.error?.message || `Error ${res.status}`;
-            if (res.status === 429 && window.parent !== window) {
-                window.parent.postMessage({ type: 'API_ERROR', code: 429 }, '*');
+        let delay = 1000;
+        for (let retry = 0; retry < 5; retry++) {
+            try {
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                
+                if (!res.ok) {
+                    if (res.status === 429 || res.status === 404 || res.status === 403 || res.status >= 500) {
+                        if (window.parent !== window) {
+                            window.parent.postMessage({ type: 'API_ERROR', code: res.status }, '*');
+                        }
+                        throw new Error("API_FAIL_ROTATE");
+                    }
+                    const errorData = await res.json().catch(() => ({}));
+                    const msg = errorData.error?.message || `Error ${res.status}`;
+                    throw new Error(`Google API Menolak: ${msg}`);
+                }
+                
+                const data = await res.json();
+                let textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!textResponse) throw new Error("Respons kosong dari AI.");
+                
+                if (window.parent !== window) {
+                    window.parent.postMessage({ type: 'API_SUCCESS' }, '*');
+                }
+                
+                return JSON.parse(textResponse);
+            } catch(e) {
+                if (e.message === "API_FAIL_ROTATE") throw e; // Berhenti retry mandiri, lempar ke React UI
+                if (retry === 4) throw e;
+                await new Promise(r => setTimeout(r, delay)); delay *= 2;
             }
-            throw new Error(`Google API Menolak: ${msg}`);
         }
-        
-        const data = await res.json();
-        let textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!textResponse) throw new Error("Respons kosong dari AI.");
-        
-        return JSON.parse(textResponse);
     }
 
     // === LOGIKA GENERATE ===
@@ -549,9 +572,16 @@
             }
             document.getElementById('main-scroll-area').scrollBy({ top: 300, behavior: 'smooth' });
         } catch(e) { 
-            showToast("Gagal: " + e.message, "error");
+            if (e.message === "API_FAIL_ROTATE") {
+                showToast("⏳ Kuota/Model limit. Menunggu rotasi otomatis...", "info");
+                isWaitingForRetry = () => aiGenerate(mode);
+                lastFailedAction = () => aiGenerate(mode);
+            } else {
+                showToast("Gagal: " + e.message, "error");
+                if(loader) loader.classList.add('hidden');
+            }
         } finally {
-            if(loader) loader.classList.add('hidden');
+            if(loader && !isWaitingForRetry) loader.classList.add('hidden');
         }
     }
 
@@ -660,11 +690,19 @@
         showToast("Menganalisis & Merancang Tabel...", "info");
         try {
             const schema = { type: "OBJECT", properties: { headers: { type: "ARRAY", items: { type: "STRING" } }, rows: { type: "ARRAY", items: { type: "OBJECT", properties: { cells: { type: "ARRAY", items: { type: "STRING" } } }, required: ["cells"] } } }, required: ["headers", "rows"] };
-            const ctx = getContextFasyankes();
+            const ctx = "Fasyankes: " + document.getElementById('in-instansi').value;
             const res = await callGemini(`Buatkan tabel untuk lampiran SK.\n${ctx}\nJudul Lampiran: ${l.judul}.\nInstruksi: ${l.context}\nBuatkan kolom header relevan dan isi contoh data logis puskesmas.`, schema);
             l.headers = res.headers; l.rows = res.rows.map(row => row.cells || []);
             renderLampiranUI(); showToast("Tabel lampiran berhasil dibuat", "success");
-        } catch(e) { showToast("Gagal buat tabel: " + e.message, "error"); }
+        } catch(e) { 
+            if (e.message === "API_FAIL_ROTATE") {
+                showToast("⏳ Kuota/Model limit. Menunggu rotasi otomatis...", "info");
+                isWaitingForRetry = () => aiLamp(id);
+                lastFailedAction = () => aiLamp(id);
+            } else {
+                showToast("Gagal buat tabel: " + e.message, "error"); 
+            }
+        }
     }
 
     async function processFile(e) { 
@@ -683,13 +721,35 @@
     // === INIT SCRIPT ===
     window.onload = () => { 
         loadApiKeys();
-        if(window.parent !== window) window.parent.postMessage({ type: 'REQUEST_API_KEY' }, '*');
+        if(window.parent !== window && !apiKey) window.parent.postMessage({ type: 'REQUEST_CONFIG' }, '*');
         
         window.addEventListener('message', e => { 
-            if(e.data && e.data.type === 'UPDATE_API_KEY') { 
+            if(e.data && e.data.type === 'UPDATE_CONFIG') { 
                 apiKey = e.data.key; 
+                apiModel = e.data.model || 'gemini-2.5-flash';
                 sessionStorage.setItem('sehati_api_key', apiKey); 
+                sessionStorage.setItem('sehati_ai_model', apiModel);
                 updateSyncStatus();
+                
+                if (isWaitingForRetry) {
+                    showToast(`🔄 Melanjutkan dengan model ${apiModel}...`, "info");
+                    const retryFunc = isWaitingForRetry;
+                    isWaitingForRetry = null;
+                    setTimeout(() => retryFunc(), 1000);
+                }
+            }
+            if(e.data && e.data.type === 'STOP_RETRY') {
+                isWaitingForRetry = null;
+                showToast("❌ Siklus Terhenti: Seluruh API Key dan Model gagal.", "error");
+                
+                document.querySelectorAll('[id^="loader-"]').forEach(el => el.classList.add('hidden'));
+                
+                setTimeout(() => {
+                    const cobaLagi = confirm("Sistem telah mencoba semua Slot API Key dan Model AI, namun kehabisan kuota atau gagal.\n\nApakah Anda ingin mencoba memproses ulang?");
+                    if (cobaLagi && lastFailedAction) {
+                        lastFailedAction();
+                    }
+                }, 500);
             }
         });
         
