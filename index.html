@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
@@ -114,15 +113,9 @@
                     <span class="font-medium text-sm">Lampiran</span>
                 </button>
             </nav>
-            
-            <div class="flex items-center ml-4 gap-2">
-                <button onclick="exportToPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all active:scale-95 text-sm">
-                    <i class="fa-solid fa-file-pdf"></i> UNDUH PDF
-                </button>
-                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all active:scale-95">
-                    CETAK BROWSER
-                </button>
-            </div>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all active:scale-95 ml-4">
+                CETAK PDF
+            </button>
         </div>
     </header>
 
@@ -311,7 +304,6 @@
     let apiKey = ""; 
     let apiModel = "gemini-2.5-flash"; 
     let referenceText = ""; 
-    let referensiDinkesGlobal = ""; // Tambahan RAG dari Dashboard Pusat
     let toastTimeout;
     
     // Penampung aksi terakhir jika menunggu rotasi otomatis
@@ -323,49 +315,6 @@
     let memperhatikanItems = ["Pedoman Akreditasi Puskesmas dan Hasil Rapat Kerja Mutu;"];
     let diktumItems = ["Menetapkan Tim Peningkatan Mutu dan Keselamatan Pasien.", "Susunan keanggotaan dan uraian tugas tercantum dalam Lampiran."];
     let lampiranItems = [];
-
-    // === FITUR SIMPAN PDF RINGAN ===
-    function exportToPDF() {
-        showToast("Memproses PDF... Mohon tunggu sebentar.", "info");
-        const title = document.getElementById('in-tentang').value.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_');
-        const printArea = document.getElementById('print-area');
-        
-        // Simpan gaya asli agar tidak terpotong atau berbayang di PDF
-        const originalStyles = [];
-        document.querySelectorAll('.folio-paper, .lampiran-paper').forEach(el => {
-            originalStyles.push({el: el, shadow: el.style.boxShadow, border: el.style.border, transform: el.style.transform, margin: el.style.margin});
-            el.style.boxShadow = 'none';
-            el.style.border = 'none';
-            el.style.transform = 'scale(1)'; // Normalisasi zoom kertas
-            el.style.margin = '0';
-        });
-
-        // Pengaturan PDF dari HTML
-        const opt = {
-            margin:       0,
-            filename:     `SK_${title}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, logging: false },
-            jsPDF:        { unit: 'in', format: 'legal', orientation: 'portrait' },
-            pagebreak:    { mode: ['css', 'legacy'] }
-        };
-
-        // Render PDF
-        html2pdf().set(opt).from(printArea).save().then(() => {
-            showToast("File PDF berhasil diunduh!", "success");
-            // Kembalikan gaya antarmuka (UI) ke bentuk semula
-            document.querySelectorAll('.folio-paper, .lampiran-paper').forEach((el, index) => {
-                const orig = originalStyles[index];
-                el.style.boxShadow = orig.shadow;
-                el.style.border = orig.border;
-                el.style.transform = orig.transform;
-                el.style.margin = orig.margin;
-            });
-        }).catch(err => {
-            showToast("Gagal menyimpan PDF", "error");
-            console.error(err);
-        });
-    }
 
     // === UI CORE ===
     function changeTab(tabId, btn) {
@@ -563,7 +512,7 @@
         }
     }
 
-    // === LOGIKA GENERATE (DENGAN DOUBLE OTORITAS / RAG) ===
+    // === LOGIKA GENERATE ===
     async function aiGenerate(mode) {
         const loader = document.getElementById(`loader-${mode}`);
         if(loader) loader.classList.remove('hidden');
@@ -582,7 +531,7 @@
             const pemda = document.getElementById('in-pemda').value;
             const tentang = document.getElementById('in-tentang').value;
             const arahan = document.getElementById('in-legal-info').value;
-            const ctx = `Konteks Fasyankes: ${instansi} wilayah ${pemda}. Judul SK: ${tentang}.`;
+            const ctx = `Konteks Fasyankes: ${instansi} wilayah ${pemda}. Judul SK: ${tentang}. Referensi: ${referenceText}`;
 
             if(mode === 'legal') {
                 const schema = { 
@@ -595,31 +544,24 @@
                     required: ["menimbang", "mengingat"]
                 };
                 
-                // PROMPT DOUBLE OTORITAS - PENGGABUNGAN GITHUB & KEMAMPUAN BAWAAN
+                // PROMPT SUPER KETAT - ANTI HALUSINASI REGULASI
                 let prompt = `Anda adalah Sistem Penyusun Tata Naskah Dinas Fasyankes. 
 TUGAS: Susun poin Konsideran (Menimbang, Mengingat, Memperhatikan).
 ${ctx}
 
 Arahan Khusus dari Pengguna: "${arahan}"
 
-PENTING - PENDEKATAN DOUBLE OTORITAS:
-OTORITAS 1 (Aturan Resmi Dinas Kesehatan):
-Anda WAJIB menggunakan, mengutip, dan memprioritaskan data regulasi dari Dinas Kesehatan yang disuntikkan di bawah ini (jika tersedia):
-=========================================
-${referensiDinkesGlobal || "Tidak ada injeksi aturan khusus dari Dinkes Pusat."}
-=========================================
-
-OTORITAS 2 (Kemampuan Bawaan AI Anda):
-Gunakan kepintaran bawaan Anda untuk menyempurnakan bagian yang tidak diatur di Otoritas 1. Susun urutan hierarki secara presisi: UU, PP, Perpres, Permenkes, Kepmenkes, Perda. Gunakan format kaku tata naskah dinas birokrasi Indonesia.
-
 ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
 1. DILARANG KERAS MENGARANG JUDUL REGULASI! Jika Anda tidak tahu pasti judul lengkap sebuah Peraturan, tuliskan nomornya saja (misal: "Peraturan Menteri Kesehatan Nomor x Tahun x;").
 2. DATA WAJIB: Jika pengguna menyebut PP 28/2024 atau PP 28 Tahun 2024, Anda WAJIB menuliskannya secara eksak seperti ini: "Peraturan Pemerintah Nomor 28 Tahun 2024 tentang Peraturan Pelaksanaan Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;". Jangan ubah satu kata pun.
 3. DATA WAJIB: Jika pengguna menyebut PMK 19/2024, PMK 19 Tahun 2024, atau Permenkes 19 Tahun 2024, Anda WAJIB menuliskannya secara eksak seperti ini: "Peraturan Menteri Kesehatan Nomor 19 Tahun 2024 tentang Penyelenggaraan Pusat Kesehatan Masyarakat;".
-4. DATA WAJIB: Selalu cantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;".`;
+4. DATA WAJIB: Selalu cantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;".
+5. Susun urutan hierarki secara presisi: UU, PP, Perpres, Permenkes, Kepmenkes, Perda.
+6. Gunakan format kaku tata naskah dinas birokrasi Indonesia.`;
 
+                // Jika ada referensi dokumen yang diupload
                 if (referenceText.length > 50) {
-                    prompt += `\n\nREFERENSI TAMBAHAN (Dari Upload Pengguna): \n"""${referenceText}"""\nGabungkan juga acuan tambahan ini secara harmonis dengan Otoritas 1 dan 2. JANGAN MENGARANG. Salin dan ekstrak struktur hukum dari teks tersebut.`;
+                    prompt += `\n\nTEKS REFERENSI: """${referenceText}"""\nKarena pengguna mengunggah teks referensi, JANGAN MENGARANG. Salin dan ekstrak struktur hukum dari teks tersebut, sesuaikan hanya nama instansi dan judul SK-nya.`;
                 }
 
                 const res = await callGemini(prompt, schema);
@@ -800,24 +742,15 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
         } 
     }
 
-    // === INIT SCRIPT & PENANGKAP REFERENSI GITHUB ===
+    // === INIT SCRIPT ===
     window.onload = () => { 
         loadApiKeys();
-        
-        // Meminta konfigurasi awal ke Dashboard (jika dibuka lewat iframe)
         if(window.parent !== window && !apiKey) window.parent.postMessage({ type: 'REQUEST_CONFIG' }, '*');
         
         window.addEventListener('message', e => { 
             if(e.data && e.data.type === 'UPDATE_CONFIG') { 
                 apiKey = e.data.key; 
                 apiModel = e.data.model || 'gemini-2.5-flash';
-                
-                // PENANGKAP REFERENSI DINKES (RAG) DARI GITHUB
-                if (e.data.contextReference) {
-                    referensiDinkesGlobal = e.data.contextReference;
-                    console.log("Referensi Dinkes Sukses Disinkronkan ke SK-Generator!");
-                }
-
                 sessionStorage.setItem('sehati_api_key', apiKey); 
                 sessionStorage.setItem('sehati_ai_model', apiModel);
                 updateSyncStatus();
