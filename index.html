@@ -509,6 +509,12 @@
             const arahan = document.getElementById('in-legal-info').value;
             const ctx = `Kategori Fasyankes: ${jenisFasyankes}. Nama Instansi: ${instansi} wilayah ${pemda}. Judul SK: ${tentang}.`;
 
+            // --- SUNTIKAN PERSEPSI DINKES ---
+            let konteksTambahanDinkes = "";
+            if (jenisFasyankes === "Dinas Kesehatan") {
+                konteksTambahanDinkes = "\nPERHATIAN MUTLAK: Instansi ini adalah Dinas Kesehatan (Dinkes). Fokuskan pembuatan dokumen pada fungsi birokrasi, tata kelola pemerintahan, pembinaan, regulasi kewilayahan, monitoring, evaluasi data, atau program kesehatan masyarakat. JANGAN PERNAH menyertakan instruksi pelayanan/asuhan medis atau klinis langsung kepada pasien.";
+            }
+
             if(mode === 'legal') {
                 const schema = { 
                     type: "OBJECT", 
@@ -525,6 +531,7 @@ TUGAS: Susun poin Konsideran (Menimbang, Mengingat, Memperhatikan).
 ${ctx}
 
 Arahan Khusus dari Pengguna: "${arahan}"
+${konteksTambahanDinkes}
 
 PENTING - PENDEKATAN DOUBLE OTORITAS:
 OTORITAS 1 (Aturan Resmi Dinas Kesehatan):
@@ -559,7 +566,7 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
                 
                 const contextLampiran = lampiranItems.length > 0 ? `Info Lampiran: SK ini memiliki lampiran berjudul ${lampiranItems.map(l => l.judul).join(', ')}.` : '';
                 
-                const promptText = `Buatkan poin DIKTUM (keputusan inti) untuk SK ${jenisFasyankes}.\n${ctx}\nDasar Hukum: ${contextKonsideran}\n${contextLampiran}\n\nTUGAS: Jangan berikan kata awalan seperti "KESATU:" atau angka di awal kalimat. Langsung isi kebijakannya saja secara jelas dan operasional. Jika ada lampiran, buat poin diktum yang secara eksplisit merujuk pada penetapan lampiran tersebut.`;
+                const promptText = `Buatkan poin DIKTUM (keputusan inti) untuk SK ${jenisFasyankes}.\n${ctx}\nDasar Hukum: ${contextKonsideran}\n${contextLampiran}\n${konteksTambahanDinkes}\n\nTUGAS: Jangan berikan kata awalan seperti "KESATU:" atau angka di awal kalimat. Langsung isi kebijakannya saja secara jelas dan operasional. Jika ada lampiran, buat poin diktum yang secara eksplisit merujuk pada penetapan lampiran tersebut.`;
 
                 const res = await callGemini(promptText, schema);
                 
@@ -726,8 +733,14 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
         try {
             const jenisFasyankes = document.getElementById('in-jenis').value;
             const contextDiktum = diktumItems.length > 0 ? `Diktum/Keputusan SK Utama: "${diktumItems.join('; ')}"` : '';
+
+            // --- SUNTIKAN PERSEPSI DINKES ---
+            let konteksTambahanDinkes = "";
+            if (jenisFasyankes === "Dinas Kesehatan") {
+                konteksTambahanDinkes = "\nPERHATIAN MUTLAK: Instansi ini adalah Dinas Kesehatan (Dinkes). Fokuskan isi lampiran pada fungsi birokrasi, tata kelola pemerintahan, pembinaan, regulasi kewilayahan, monitoring, dan evaluasi data. JANGAN PERNAH menyertakan instruksi pelayanan/asuhan medis atau klinis langsung kepada pasien.";
+            }
             
-            let promptText = `Anda adalah Asisten Penyusun SK Fasyankes.\nBuatkan isi lampiran SK.\n\nInstansi: ${document.getElementById('in-instansi').value} (${jenisFasyankes})\nJudul Lampiran: ${l.judul}\n${contextDiktum}\nArahan Tambahan: ${l.context}\n\nTUGAS PENTING: Lampiran ini adalah kepanjangan tangan dari Diktum. Isi lampiran HARUS merinci isi Diktum di atas dengan logis dan terstruktur sesuai standar tata naskah dinas ${jenisFasyankes}.\n\nATURAN MUTLAK: JANGAN PERNAH MENULISKAN ULANG KOP ATAU JUDUL LAMPIRAN! DILARANG KERAS menulis kalimat pembuka seperti "LAMPIRAN SURAT KEPUTUSAN...", "NOMOR...", "TENTANG...", atau menyebut ulang Judul Lampirannya di dalam teks. Langsung mulai ke isi materinya saja karena kop lampiran sudah otomatis tercetak oleh sistem aplikasi!`;
+            let promptText = `Anda adalah Asisten Penyusun SK Fasyankes.\nBuatkan isi lampiran SK.\n\nInstansi: ${document.getElementById('in-instansi').value} (${jenisFasyankes})\nJudul Lampiran: ${l.judul}\n${contextDiktum}\nArahan Tambahan: ${l.context}\n${konteksTambahanDinkes}\n\nTUGAS PENTING: Lampiran ini adalah kepanjangan tangan dari Diktum. Isi lampiran HARUS merinci isi Diktum di atas dengan logis dan terstruktur sesuai standar tata naskah dinas ${jenisFasyankes}.\n\nATURAN MUTLAK: JANGAN PERNAH MENULISKAN ULANG KOP ATAU JUDUL LAMPIRAN! DILARANG KERAS menulis kalimat pembuka seperti "LAMPIRAN SURAT KEPUTUSAN...", "NOMOR...", "TENTANG...", atau menyebut ulang Judul Lampirannya di dalam teks. Langsung mulai ke isi materinya saja karena kop lampiran sudah otomatis tercetak oleh sistem aplikasi!`;
             
             let schema;
 
