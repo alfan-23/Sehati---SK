@@ -424,31 +424,37 @@
         }, type === 'error' ? 6000 : 3500); 
     }
 
-    // === MESIN AI GENERATOR & ROTASI MANDIRI ===
+    // === OTOMASI CONFIG (HANYA DARI SESSION DASHBOARD) ===
+    function loadApiKeys() {
+        apiKey = sessionStorage.getItem('sehati_api_key') || "";
+        apiModel = sessionStorage.getItem('sehati_ai_model') || "";
+    }
+
+    // === MESIN AI GENERATOR ===
     async function callGemini(prompt, schema) {
         if (!apiKey || !apiModel) {
-            showToast("Akses Ditolak: Kunci API belum diatur.", "error");
+            showToast("Akses Ditolak: Menunggu konfigurasi aman dari Dashboard Utama.", "error");
             throw new Error("Konfigurasi Sistem Belum Ditemukan.");
         }
 
-        for (let retry = 0; retry < 5; retry++) {
-            // Evaluasi ulang URL di dalam loop agar merespons saat API key/model dirotasi
-            const isLive = document.getElementById('chk-live') && document.getElementById('chk-live').checked;
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${apiKey}`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { 
-                    responseMimeType: "application/json", 
-                    responseSchema: schema, 
-                    temperature: 0.1 
-                }
-            };
-
-            if (isLive) {
-                payload.tools = [{ googleSearch: {} }];
+        const isLive = document.getElementById('chk-live') && document.getElementById('chk-live').checked;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${apiKey}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { 
+                responseMimeType: "application/json", 
+                responseSchema: schema, 
+                temperature: 0.1 
             }
+        };
 
+        if (isLive) {
+            payload.tools = [{ googleSearch: {} }];
+        }
+
+        let delay = 1000;
+        for (let retry = 0; retry < 5; retry++) {
             try {
                 const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 
@@ -456,30 +462,6 @@
                     if (res.status === 429 || res.status === 404 || res.status === 403 || res.status >= 500) {
                         if (window.parent !== window) {
                             window.parent.postMessage({ type: 'API_ERROR', code: res.status }, '*');
-                        } else {
-                            // ROTASI LOKAL UNTUK TAB TERPISAH (STANDALONE)
-                            const savedKeys = JSON.parse(localStorage.getItem('sehati_api_keys') || "[]").filter(k => k.trim() !== "");
-                            const localModels = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
-                            
-                            if (savedKeys.length > 0) {
-                                let currKeyIdx = savedKeys.indexOf(apiKey);
-                                let currModIdx = localModels.indexOf(apiModel);
-                                
-                                currKeyIdx++;
-                                if (currKeyIdx >= savedKeys.length) {
-                                    currKeyIdx = 0;
-                                    currModIdx++;
-                                }
-                                
-                                if (currModIdx >= localModels.length) {
-                                    throw new Error("KUOTA_HABIS_TOTAL");
-                                }
-                                
-                                apiKey = savedKeys[currKeyIdx];
-                                apiModel = localModels[currModIdx];
-                                console.log(`Rotasi Lokal Aktif: Beralih ke Key Slot ${currKeyIdx + 1}, Model ${apiModel}`);
-                                updateSyncStatus();
-                            }
                         }
                         throw new Error("API_FAIL_ROTATE");
                     }
@@ -498,9 +480,9 @@
                 
                 return JSON.parse(textResponse);
             } catch(e) {
-                if (e.message === "API_FAIL_ROTATE" || e.message === "KUOTA_HABIS_TOTAL") throw e; 
+                if (e.message === "API_FAIL_ROTATE") throw e; 
                 if (retry === 4) throw e;
-                await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retry))); 
+                await new Promise(r => setTimeout(r, delay)); delay *= 2;
             }
         }
     }
@@ -527,6 +509,7 @@
             const arahan = document.getElementById('in-legal-info').value;
             const ctx = `Kategori Fasyankes: ${jenisFasyankes}. Nama Instansi: ${instansi} wilayah ${pemda}. Judul SK: ${tentang}.`;
 
+            // --- SUNTIKAN PERSEPSI DINKES ---
             let konteksTambahanDinkes = "";
             if (jenisFasyankes === "Dinas Kesehatan") {
                 konteksTambahanDinkes = "\nPERHATIAN MUTLAK: Instansi ini adalah Dinas Kesehatan (Dinkes). Fokuskan pembuatan dokumen pada fungsi birokrasi, tata kelola pemerintahan, pembinaan, regulasi kewilayahan, monitoring, evaluasi data, atau program kesehatan masyarakat. JANGAN PERNAH menyertakan instruksi pelayanan/asuhan medis atau klinis langsung kepada pasien.";
@@ -570,13 +553,9 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
                 }
 
                 const res = await callGemini(prompt, schema);
-                
-                // === PEMBERSIH NUMBERING OTOMATIS DARI AI ===
-                const stripPrefix = (arr) => arr.map(item => item.replace(/^([a-z]|\d+)\s*[\.\)]\s*/i, '').trim());
-                
-                menimbangItems = stripPrefix(res.menimbang || []);
-                mengingatItems = stripPrefix(res.mengingat || []);
-                if(document.getElementById('chk-memperhatikan').checked) memperhatikanItems = stripPrefix(res.memperhatikan || []);
+                menimbangItems = res.menimbang || [];
+                mengingatItems = res.mengingat || [];
+                if(document.getElementById('chk-memperhatikan').checked) memperhatikanItems = res.memperhatikan || [];
                 
                 renderKonsideranForm();
                 showToast("Sintesis Konsideran Berhasil!", "success");
@@ -584,6 +563,7 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             } else if(mode === 'diktum') {
                 const schema = { type: "OBJECT", properties: { items: { type: "ARRAY", items: { type: "STRING" } } }, required: ["items"] };
                 const contextKonsideran = `Menimbang: ${menimbangItems.join(' ')}. Mengingat: ${mengingatItems.join(' ')}.`;
+                
                 const contextLampiran = lampiranItems.length > 0 ? `Info Lampiran: SK ini memiliki lampiran berjudul ${lampiranItems.map(l => l.judul).join(', ')}.` : '';
                 
                 const promptText = `Buatkan poin DIKTUM (keputusan inti) untuk SK ${jenisFasyankes}.\n${ctx}\nDasar Hukum: ${contextKonsideran}\n${contextLampiran}\n${konteksTambahanDinkes}\n\nTUGAS: Jangan berikan kata awalan seperti "KESATU:" atau angka di awal kalimat. Langsung isi kebijakannya saja secara jelas dan operasional. Jika ada lampiran, buat poin diktum yang secara eksplisit merujuk pada penetapan lampiran tersebut.`;
@@ -595,26 +575,17 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
                 showToast("Diktum berhasil dirancang", "success");
             }
             document.getElementById('main-scroll-area').scrollBy({ top: 300, behavior: 'smooth' });
-            
         } catch(e) { 
             if (e.message === "API_FAIL_ROTATE") {
-                showToast("⏳ Limit API tercapai. Mengalihkan otomatis ke Slot/Model berikutnya...", "info");
-                
-                if (window.parent === window) {
-                    // Berjalan mandiri (Tab Baru), panggil ulang fungsi setelah jeda 1.5 detik
-                    setTimeout(() => aiGenerate(mode), 1500);
-                } else {
-                    // Menunggu perintah rotasi dari Dashboard
-                    isWaitingForRetry = () => aiGenerate(mode);
-                    lastFailedAction = () => aiGenerate(mode);
-                }
-            } else if (e.message === "KUOTA_HABIS_TOTAL") {
-                 showToast("❌ Gagal: Seluruh Slot API Key dan Model AI telah kehabisan kuota harian.", "error");
+                showToast("⏳ Sinkronisasi otomatis dari sistem...", "info");
+                isWaitingForRetry = () => aiGenerate(mode);
+                lastFailedAction = () => aiGenerate(mode);
             } else {
                 showToast("Gagal: " + e.message, "error");
+                if(loader) loader.classList.add('hidden');
             }
         } finally {
-            if(loader && !isWaitingForRetry && e?.message !== "API_FAIL_ROTATE") loader.classList.add('hidden');
+            if(loader && !isWaitingForRetry) loader.classList.add('hidden');
         }
     }
 
@@ -797,15 +768,9 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             showToast("Lampiran berhasil disusun AI", "success");
         } catch(e) { 
             if (e.message === "API_FAIL_ROTATE") {
-                showToast("⏳ Limit API tercapai. Beralih otomatis ke Slot/Model selanjutnya...", "info");
-                if (window.parent === window) {
-                    setTimeout(() => aiLamp(id), 1500);
-                } else {
-                    isWaitingForRetry = () => aiLamp(id);
-                    lastFailedAction = () => aiLamp(id);
-                }
-            } else if (e.message === "KUOTA_HABIS_TOTAL") {
-                 showToast("❌ Gagal: Seluruh Slot API Key dan Model AI telah kehabisan kuota harian.", "error");
+                showToast("⏳ Menunggu siklus otomatis sistem...", "info");
+                isWaitingForRetry = () => aiLamp(id);
+                lastFailedAction = () => aiLamp(id);
             } else {
                 showToast("Gagal menyusun lampiran: " + e.message, "error"); 
             }
@@ -837,32 +802,9 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
 
     // === INIT SCRIPT ===
     window.onload = () => { 
-        // === CARA BARU (ANTI GAGAL): BACA DARI URL PARAMETER DASHBOARD ===
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlKey = urlParams.get('key');
-        const urlModel = urlParams.get('model');
-
-        if (urlKey) {
-            // Jika aplikasi dibuka oleh Dashboard (Iframe), tarik kuncinya langsung dari URL
-            apiKey = urlKey;
-            apiModel = urlModel || 'gemini-1.5-flash';
-            sessionStorage.setItem('sehati_api_key', apiKey);
-            sessionStorage.setItem('sehati_ai_model', apiModel);
-            console.log("Berhasil integrasi kunci AI dari URL Dashboard.");
-        } else {
-            // Jika aplikasi dibuka di Tab Baru (Standalone), intip memori browser
-            loadApiKeys();
-            if (!apiKey) {
-                try {
-                    const savedKeys = JSON.parse(localStorage.getItem('sehati_api_keys') || "[]").filter(k => k.trim() !== "");
-                    if (savedKeys.length > 0) {
-                        apiKey = savedKeys[0];
-                        apiModel = 'gemini-1.5-flash'; 
-                    }
-                } catch(e) {}
-            }
-        }
-
+        loadApiKeys();
+        
+        // Membaca kategori fasyankes dari Dashboard (jika ada) dan mengatur pilihan Dropdown secara otomatis
         const savedKategori = sessionStorage.getItem('kategori');
         if (savedKategori) {
             const selectJenis = document.getElementById('in-jenis');
@@ -874,18 +816,13 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             }
         }
         
-        // Minta referensi aturan khusus dari Dashboard (hanya jika di dalam Iframe)
-        if (window.parent !== window) {
+        // Cek apakah dibuka di luar Dashboard (tidak ada window parent)
+        if(window.parent === window) {
+            showToast("Aplikasi harus dijalankan dari Dashboard Utama", "error");
+        } else {
+            // Minta konfigurasi ke Dashboard
             window.parent.postMessage({ type: 'REQUEST_CONFIG' }, '*');
         }
-
-        // Tampilkan peringatan jika semua cara gagal mendapatkan Key
-        if (!apiKey) {
-            showToast("API Key tidak ditemukan. Buka Dashboard Utama, isi API Key, lalu muat ulang.", "error");
-        }
-
-        // Langsung perbarui status UI berdasarkan apiKey yang didapat
-        updateSyncStatus();
         
         window.addEventListener('message', e => { 
             if(e.data && e.data.type === 'UPDATE_CONFIG') { 
@@ -922,6 +859,7 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             }
         });
         
+        updateSyncStatus();
         renderKonsideranForm(); 
         renderDiktumForm(); 
         renderLampiranUI(); 
