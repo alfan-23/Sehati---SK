@@ -763,6 +763,7 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             const jenisFasyankes = document.getElementById('in-jenis').value;
             const contextDiktum = diktumItems.length > 0 ? `Diktum/Keputusan SK Utama: "${diktumItems.join('; ')}"` : '';
 
+            // --- SUNTIKAN PERSEPSI DINKES ---
             let konteksTambahanDinkes = "";
             if (jenisFasyankes === "Dinas Kesehatan") {
                 konteksTambahanDinkes = "\nPERHATIAN MUTLAK: Instansi ini adalah Dinas Kesehatan (Dinkes). Fokuskan isi lampiran pada fungsi birokrasi, tata kelola pemerintahan, pembinaan, regulasi kewilayahan, monitoring, dan evaluasi data. JANGAN PERNAH menyertakan instruksi pelayanan/asuhan medis atau klinis langsung kepada pasien.";
@@ -836,8 +837,32 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
 
     // === INIT SCRIPT ===
     window.onload = () => { 
-        loadApiKeys();
-        
+        // === CARA BARU (ANTI GAGAL): BACA DARI URL PARAMETER DASHBOARD ===
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlKey = urlParams.get('key');
+        const urlModel = urlParams.get('model');
+
+        if (urlKey) {
+            // Jika aplikasi dibuka oleh Dashboard (Iframe), tarik kuncinya langsung dari URL
+            apiKey = urlKey;
+            apiModel = urlModel || 'gemini-1.5-flash';
+            sessionStorage.setItem('sehati_api_key', apiKey);
+            sessionStorage.setItem('sehati_ai_model', apiModel);
+            console.log("Berhasil integrasi kunci AI dari URL Dashboard.");
+        } else {
+            // Jika aplikasi dibuka di Tab Baru (Standalone), intip memori browser
+            loadApiKeys();
+            if (!apiKey) {
+                try {
+                    const savedKeys = JSON.parse(localStorage.getItem('sehati_api_keys') || "[]").filter(k => k.trim() !== "");
+                    if (savedKeys.length > 0) {
+                        apiKey = savedKeys[0];
+                        apiModel = 'gemini-1.5-flash'; 
+                    }
+                } catch(e) {}
+            }
+        }
+
         const savedKategori = sessionStorage.getItem('kategori');
         if (savedKategori) {
             const selectJenis = document.getElementById('in-jenis');
@@ -849,24 +874,18 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             }
         }
         
-        // Pengecekan Tab Baru (Standalone) & Inisialisasi API Key
-        if (window.parent === window) {
-            try {
-                const savedKeys = JSON.parse(localStorage.getItem('sehati_api_keys') || "[]").filter(k => k.trim() !== "");
-                if (savedKeys.length > 0) {
-                    apiKey = savedKeys[0];
-                    if (!apiModel) apiModel = 'gemini-1.5-flash'; 
-                    console.log("Berhasil mengambil API Key dari memori browser!");
-                    updateSyncStatus();
-                } else {
-                    showToast("API Key tidak ditemukan. Buka Dashboard, isi API Key, centang 'Simpan di Browser', lalu Muat Ulang.", "error");
-                }
-            } catch (e) {
-                console.error("Gagal membaca memori browser.");
-            }
-        } else {
+        // Minta referensi aturan khusus dari Dashboard (hanya jika di dalam Iframe)
+        if (window.parent !== window) {
             window.parent.postMessage({ type: 'REQUEST_CONFIG' }, '*');
         }
+
+        // Tampilkan peringatan jika semua cara gagal mendapatkan Key
+        if (!apiKey) {
+            showToast("API Key tidak ditemukan. Buka Dashboard Utama, isi API Key, lalu muat ulang.", "error");
+        }
+
+        // Langsung perbarui status UI berdasarkan apiKey yang didapat
+        updateSyncStatus();
         
         window.addEventListener('message', e => { 
             if(e.data && e.data.type === 'UPDATE_CONFIG') { 
@@ -903,7 +922,6 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             }
         });
         
-        updateSyncStatus();
         renderKonsideranForm(); 
         renderDiktumForm(); 
         renderLampiranUI(); 
