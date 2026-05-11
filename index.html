@@ -445,7 +445,7 @@
             generationConfig: { 
                 responseMimeType: "application/json", 
                 responseSchema: schema, 
-                temperature: 0.3 // Sedikit dinaikkan agar AI tidak mudah 'stuck' pada query berulang
+                temperature: 0.2 // Diturunkan sedikit agar lebih kaku dan fokus pada JSON
             }
         };
 
@@ -471,11 +471,22 @@
                 }
                 
                 const data = await res.json();
+                
+                // Pengecekan safety filter (jika AI menolak menjawab)
+                if (data.candidates && data.candidates[0].finishReason === 'SAFETY') {
+                    throw new Error("Ditolak oleh sistem keamanan AI. Mohon kurangi teks referensi atau ubah kata kunci.");
+                }
+
                 let textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!textResponse) throw new Error("Respons kosong dari AI.");
                 
-                // PERBAIKAN: Bersihkan halusinasi markdown (```json ... ```) dari respons AI
-                textResponse = textResponse.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+                // PERBAIKAN TOTAL: Ekstraktor JSON Tangguh (Mengambil apapun yang berada di dalam kurung kurawal)
+                const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    textResponse = jsonMatch[0];
+                } else {
+                    throw new Error("AI tidak merespons dalam format JSON yang valid.");
+                }
 
                 if (window.parent !== window) {
                     window.parent.postMessage({ type: 'API_SUCCESS' }, '*');
@@ -485,11 +496,11 @@
             } catch(e) {
                 if (e.message === "API_FAIL_ROTATE") throw e; 
                 if (e instanceof SyntaxError) {
-                    // Tangkap error jika gagal parse JSON
-                    console.error("Gagal parse JSON dari AI:", e);
-                    throw new Error("Sistem AI gagal merespons dengan format yang tepat. Silakan coba lagi.");
+                    console.error("Gagal parse JSON dari AI. Respons asli:", textResponse);
+                    if (retry === 4) throw new Error("AI gagal menyusun data. Coba hapus sebagian referensi teks.");
+                } else if (retry === 4) {
+                    throw e;
                 }
-                if (retry === 4) throw e;
                 await new Promise(r => setTimeout(r, delay)); delay *= 2;
             }
         }
@@ -520,7 +531,7 @@
             // --- SUNTIKAN PERSEPSI DINKES ---
             let konteksTambahanDinkes = "";
             if (jenisFasyankes === "Dinas Kesehatan") {
-                konteksTambahanDinkes = "\nPERHATIAN MUTLAK: Instansi ini adalah Dinas Kesehatan (Dinkes). Fokuskan pembuatan dokumen pada fungsi birokrasi, tata kelola pemerintahan, pembinaan, regulasi kewilayahan, monitoring, evaluasi data, atau program kesehatan masyarakat. JANGAN PERNAH menyertakan instruksi pelayanan/asuhan medis atau klinis langsung kepada pasien.";
+                konteksTambahanDinkes = "\nCatatan Tambahan: Instansi ini adalah Dinas Kesehatan. Fokuskan dokumen pada fungsi birokrasi, tata kelola, regulasi kewilayahan, atau program kesehatan masyarakat, bukan asuhan klinis langsung.";
             }
 
             if(mode === 'legal') {
@@ -534,37 +545,32 @@
                     required: ["menimbang", "mengingat"]
                 };
                 
-                let prompt = `Anda adalah Sistem Penyusun Tata Naskah Dinas Fasyankes. 
-TUGAS: Susun poin Konsideran (Menimbang, Mengingat, Memperhatikan). Pastikan output Anda berupa format JSON yang valid.
+                // PERBAIKAN TOTAL PROMPT: Menghilangkan kata-kata pemicu filter ("ANCAMAN", "DILARANG KERAS", "MUTLAK")
+                let prompt = `Anda adalah Asisten Tata Naskah Dinas Fasyankes. 
+TUGAS: Susun poin Konsideran (Menimbang, Mengingat, Memperhatikan).
 ${ctx}
 
-Arahan Khusus dari Pengguna: "${arahan}"
+Arahan Pengguna: "${arahan}"
 ${konteksTambahanDinkes}
 
-PENTING - PENDEKATAN DOUBLE OTORITAS:
-OTORITAS 1 (Aturan Resmi Dinas Kesehatan):
-Anda WAJIB menggunakan, mengutip, dan memprioritaskan data regulasi dari Dinas Kesehatan yang disuntikkan di bawah ini (jika tersedia):
-=========================================
-${referensiDinkesGlobal || "Tidak ada injeksi aturan khusus dari Dinkes Pusat."}
-=========================================
+PANDUAN REFERENSI (Prioritas Utama):
+${referensiDinkesGlobal ? referensiDinkesGlobal : "Gunakan standar regulasi kesehatan nasional terbaru yang sesuai."}
 
-OTORITAS 2 (Kemampuan Bawaan AI Anda):
-Gunakan kepintaran bawaan Anda untuk menyempurnakan bagian yang tidak diatur di Otoritas 1. Susun urutan hierarki secara presisi: UU, PP, Perpres, Permenkes, Kepmenkes, Perda. Gunakan format kaku tata naskah dinas birokrasi Indonesia. Pastikan referensi aturan yang Anda kutip relevan dengan institusi berjenis ${jenisFasyankes}.
-
-INSTRUKSI KETAT (WAJIB DIPATUHI):
-1. DILARANG KERAS MENGARANG JUDUL REGULASI! Jika Anda tidak tahu pasti judul lengkap sebuah Peraturan, tuliskan nomornya saja (misal: "Peraturan Menteri Kesehatan Nomor x Tahun x;").
-2. DATA WAJIB: Jika pengguna menyebut PP 28/2024 atau PP 28 Tahun 2024, Anda WAJIB menuliskannya secara eksak seperti ini: "Peraturan Pemerintah Nomor 28 Tahun 2024 tentang Peraturan Pelaksanaan Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;". Jangan ubah satu kata pun.
-3. DATA WAJIB: Selalu cantumkan "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;".
-4. OUTPUT HANYA JSON: Keluarkan output dalam format JSON murni tanpa ada embel-embel kalimat atau markdown formatting.`;
+INSTRUKSI FORMAT:
+1. Susun urutan hierarki secara presisi: Undang-Undang, Peraturan Pemerintah, Perpres, Permenkes, Kepmenkes, Peraturan Daerah.
+2. Gunakan judul regulasi yang akurat. Jika tidak yakin dengan judul lengkap, tuliskan jenis dan nomornya saja.
+3. Selalu cantumkan: "Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;".
+4. Jika relevan atau diminta, cantumkan format persis: "Peraturan Pemerintah Nomor 28 Tahun 2024 tentang Peraturan Pelaksanaan Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;".
+5. Keluarkan hasil HANYA dalam format JSON sesuai skema yang diminta.`;
 
                 if (referenceText.length > 50) {
-                    prompt += `\n\nREFERENSI TAMBAHAN (Dari Upload Pengguna): \n"""${referenceText}"""\nGabungkan juga acuan tambahan ini secara harmonis dengan Otoritas 1 dan 2. JANGAN MENGARANG. Salin dan ekstrak struktur hukum dari teks tersebut.`;
+                    prompt += `\n\nREFERENSI TAMBAHAN DARI PENGGUNA: \n"""${referenceText}"""\nSilakan ekstrak landasan hukum yang relevan dari teks referensi di atas dan gabungkan ke dalam output JSON Anda secara harmonis.`;
                 }
 
                 const res = await callGemini(prompt, schema);
                 
-                // PERBAIKAN: Fallback jika JSON array kosong
-                menimbangItems = (res.menimbang && res.menimbang.length > 0) ? res.menimbang : ["Bahwa untuk menunjang kelancaran tugas dan pelayanan kesehatan, perlu ditetapkan kebijakan terkait;"];
+                // Fallback jika array kosong namun tidak terjadi error catch
+                menimbangItems = (res.menimbang && res.menimbang.length > 0) ? res.menimbang : ["bahwa untuk menunjang kelancaran tugas dan pelayanan kesehatan, perlu ditetapkan kebijakan terkait;"];
                 mengingatItems = (res.mengingat && res.mengingat.length > 0) ? res.mengingat : ["Undang-Undang Nomor 17 Tahun 2023 tentang Kesehatan;"];
                 
                 if(document.getElementById('chk-memperhatikan').checked) {
@@ -580,7 +586,7 @@ INSTRUKSI KETAT (WAJIB DIPATUHI):
                 
                 const contextLampiran = lampiranItems.length > 0 ? `Info Lampiran: SK ini memiliki lampiran berjudul ${lampiranItems.map(l => l.judul).join(', ')}.` : '';
                 
-                const promptText = `Buatkan poin DIKTUM (keputusan inti) untuk SK ${jenisFasyankes}.\n${ctx}\nDasar Hukum: ${contextKonsideran}\n${contextLampiran}\n${konteksTambahanDinkes}\n\nTUGAS: Jangan berikan kata awalan seperti "KESATU:" atau angka di awal kalimat. Langsung isi kebijakannya saja secara jelas dan operasional. Jika ada lampiran, buat poin diktum yang secara eksplisit merujuk pada penetapan lampiran tersebut. Pastikan output HANYA JSON valid.`;
+                let promptText = `Buatkan poin DIKTUM (keputusan inti) untuk Surat Keputusan.\n${ctx}\nDasar Hukum: ${contextKonsideran}\n${contextLampiran}\n${konteksTambahanDinkes}\n\nINSTRUKSI:\n1. Tuliskan poin kebijakan secara langsung dan operasional tanpa menyertakan awalan penomoran romawi atau kata seperti "KESATU:".\n2. Jika ada lampiran, buat poin diktum yang merujuk pada penetapan lampiran tersebut.\n3. Output HANYA format JSON valid.`;
 
                 const res = await callGemini(promptText, schema);
                 
@@ -753,10 +759,10 @@ INSTRUKSI KETAT (WAJIB DIPATUHI):
             // --- SUNTIKAN PERSEPSI DINKES ---
             let konteksTambahanDinkes = "";
             if (jenisFasyankes === "Dinas Kesehatan") {
-                konteksTambahanDinkes = "\nPERHATIAN MUTLAK: Instansi ini adalah Dinas Kesehatan (Dinkes). Fokuskan isi lampiran pada fungsi birokrasi, tata kelola pemerintahan, pembinaan, regulasi kewilayahan, monitoring, dan evaluasi data. JANGAN PERNAH menyertakan instruksi pelayanan/asuhan medis atau klinis langsung kepada pasien.";
+                konteksTambahanDinkes = "\nCatatan Tambahan: Instansi ini adalah Dinas Kesehatan. Fokuskan dokumen pada fungsi birokrasi, tata kelola, regulasi kewilayahan, atau program kesehatan masyarakat, bukan asuhan klinis langsung.";
             }
             
-            let promptText = `Anda adalah Asisten Penyusun SK Fasyankes.\nBuatkan isi lampiran SK.\n\nInstansi: ${document.getElementById('in-instansi').value} (${jenisFasyankes})\nJudul Lampiran: ${l.judul}\n${contextDiktum}\nArahan Tambahan: ${l.context}\n${konteksTambahanDinkes}\n\nTUGAS PENTING: Lampiran ini adalah kepanjangan tangan dari Diktum. Isi lampiran HARUS merinci isi Diktum di atas dengan logis dan terstruktur sesuai standar tata naskah dinas ${jenisFasyankes}.\n\nATURAN MUTLAK: JANGAN PERNAH MENULISKAN ULANG KOP ATAU JUDUL LAMPIRAN! DILARANG KERAS menulis kalimat pembuka seperti "LAMPIRAN SURAT KEPUTUSAN...", "NOMOR...", "TENTANG...", atau menyebut ulang Judul Lampirannya di dalam teks. Langsung mulai ke isi materinya saja karena kop lampiran sudah otomatis tercetak oleh sistem aplikasi! Pastikan output HANYA format JSON yang diminta.`;
+            let promptText = `Anda adalah Asisten Penyusun SK Fasyankes.\nBuatkan isi lampiran SK.\n\nInstansi: ${document.getElementById('in-instansi').value} (${jenisFasyankes})\nJudul Lampiran: ${l.judul}\n${contextDiktum}\nArahan Tambahan: ${l.context}\n${konteksTambahanDinkes}\n\nINSTRUKSI FORMAT:\n1. Lampiran ini merinci isi Diktum secara logis sesuai standar dinas.\n2. Jangan menuliskan ulang Kop, kalimat pembuka "LAMPIRAN...", "NOMOR...", "TENTANG...", atau Judul Lampiran. Langsung masuk ke materi.\n3. Output WAJIB berupa JSON.`;
             
             let schema;
 
@@ -765,10 +771,10 @@ INSTRUKSI KETAT (WAJIB DIPATUHI):
                 promptText += "\nBuatkan dalam bentuk format tabel (kolom dan baris data).";
             } else if (l.tipe === 'bagan') {
                 schema = { type: "OBJECT", properties: { narasi_html: { type: "STRING" } }, required: ["narasi_html"] };
-                promptText += "\nBuatkan dalam bentuk BAGAN STRUKTUR ORGANISASI atau ALUR KERJA menggunakan elemen HTML dan CSS sebaris (inline CSS) murni. Gunakan kombinasi <div>, flexbox, border, margin, dan padding agar secara visual tampak seperti kotak-kotak struktur atau diagram yang terhubung/tersusun rapi. Pastikan desainnya bisa tampil rapi di kertas putih. Keluarkan output HANYA isi tag HTML-nya saja tanpa tag <html> atau <body>.";
+                promptText += "\nBuatkan dalam bentuk BAGAN STRUKTUR ORGANISASI atau ALUR KERJA menggunakan elemen HTML dan CSS sebaris (inline CSS) murni. Gunakan kombinasi <div>, flexbox, border, margin, dan padding agar tampak seperti struktur hierarki rapi. Keluarkan output HANYA isi tag HTML-nya saja tanpa tag pembungkus <html> atau <body>.";
             } else {
                 schema = { type: "OBJECT", properties: { narasi_html: { type: "STRING" } }, required: ["narasi_html"] };
-                promptText += "\nBuatkan dalam bentuk format narasi teks terstruktur yang rapi. WAJIB susun poin-poin hierarki (misalnya: A. Visi, B. Misi, 1., 2., dst) layaknya format resmi. Keluarkan output HANYA dengan tag HTML dasar ringan (seperti <p>, <b>, <ul>, <ol>, <li>). JANGAN gunakan tag HTML lengkap pembungkus <html> atau <body>.";
+                promptText += "\nBuatkan dalam bentuk format narasi teks terstruktur yang rapi. Susun poin-poin hierarki (A. Visi, B. Misi, 1., 2.) layaknya format resmi. Keluarkan output HANYA tag HTML dasar (<p>, <b>, <ul>, <ol>, <li>). JANGAN gunakan tag <html> atau <body>.";
             }
 
             const res = await callGemini(promptText, schema);
