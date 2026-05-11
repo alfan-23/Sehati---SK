@@ -126,7 +126,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="text-[11px] font-bold text-slate-600">Jenis Fasyankes</label>
-                                        <select id="in-jenis" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase font-semibold text-blue-700 bg-blue-50 cursor-pointer outline-none focus:ring-2 focus:ring-blue-400">
+                                        <select id="in-jenis" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase font-semibold text-blue-700 bg-blue-50 cursor-pointer outline-none focus:ring-2 focus:ring-blue-400" onchange="handleJenisChange()">
                                             <option value="Puskesmas">Puskesmas (PKM)</option>
                                             <option value="Klinik">Klinik</option>
                                             <option value="Rumah Sakit">Rumah Sakit (RS)</option>
@@ -140,24 +140,24 @@
                                 </div>
                                 <div>
                                     <label class="text-[11px] font-bold text-slate-600">Judul SK (Tentang)</label>
-                                    <textarea id="in-tentang" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase min-h-[90px]" oninput="sync('tentang', this.value)">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</textarea>
+                                    <textarea id="in-tentang" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase min-h-[90px]" oninput="sync('tentang', this.value)">PENETAPAN INDIKATOR MUTU PRIORITAS (IMP) TAHUN 2026</textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="space-y-4">
                             <div>
                                 <label class="text-[11px] font-bold text-slate-600">Pemerintah / Yayasan / Organisasi</label>
-                                <input type="text" id="in-pemda" value="PT BINTANG SEHAT" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase" oninput="sync('pemda', this.value)">
+                                <input type="text" id="in-pemda" value="PEMERINTAH KABUPATEN KUNINGAN" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase" oninput="sync('pemda', this.value)">
                             </div>
                             <div>
                                 <label class="text-[11px] font-bold text-slate-600">Nama Instansi</label>
-                                <input type="text" id="in-instansi" value="KLINIK PERCONTOHAN UTAMA" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase" oninput="sync('instansi', this.value)">
+                                <input type="text" id="in-instansi" value="UPTD PUSKESMAS PERCONTOHAN" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase" oninput="sync('instansi', this.value)">
                             </div>
                             <div class="border-t border-slate-200 pt-4 mt-4">
                                 <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase">Data Penandatangan SK</h4>
                                 <div>
                                     <label class="text-[11px] font-bold text-slate-600">Jabatan Penandatangan</label>
-                                    <input type="text" id="in-jabatan" value="DIREKTUR KLINIK PERCONTOHAN UTAMA" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase" oninput="sync('jabatan', this.value)">
+                                    <input type="text" id="in-jabatan" value="KEPALA UPTD PUSKESMAS PERCONTOHAN" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm uppercase" oninput="sync('jabatan', this.value)">
                                 </div>
                                 <div class="mt-3">
                                     <label class="text-[11px] font-bold text-slate-600">Nama Lengkap Penandatangan</label>
@@ -166,11 +166,11 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                                     <div>
                                         <label class="text-[11px] font-bold text-slate-600">NIP / NIK</label>
-                                        <input type="text" id="in-nip" value="NIK. 19800101 2005" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm" oninput="sync('nip', this.value)">
+                                        <input type="text" id="in-nip" value="NIP. 19800101 200501 2 001" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm" oninput="sync('nip', this.value)">
                                     </div>
                                     <div>
                                         <label class="text-[11px] font-bold text-slate-600">Ditetapkan di</label>
-                                        <input type="text" id="in-tempat" value="Jakarta" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm" oninput="sync('tempat', this.value)">
+                                        <input type="text" id="in-tempat" value="Kuningan" class="w-full mt-1 border border-slate-200 rounded-lg p-2.5 text-sm" oninput="sync('tempat', this.value)">
                                     </div>
                                     <div>
                                         <label class="text-[11px] font-bold text-slate-600">Tanggal</label>
@@ -249,17 +249,17 @@
                 <div id="print-area" class="w-full flex flex-col items-center gap-12 pb-10">
                     <div class="folio-paper" contenteditable="true" spellcheck="false" id="preview-paper">
                         <div class="kop-surat">
-                            <h2 class="uppercase doc-pemda font-bold" style="font-size: 14pt;">PT BINTANG SEHAT</h2>
-                            <h1 class="uppercase doc-instansi font-bold" style="font-size: 18pt;">KLINIK PERCONTOHAN UTAMA</h1>
+                            <h2 class="uppercase doc-pemda font-bold" style="font-size: 14pt;">PEMERINTAH KABUPATEN KUNINGAN</h2>
+                            <h1 class="uppercase doc-instansi font-bold" style="font-size: 18pt;">UPTD PUSKESMAS PERCONTOHAN</h1>
                         </div>
                         <div class="mb-8">
-                            <p class="font-bold" style="text-align: center !important;">KEPUTUSAN <span class="doc-jabatan uppercase">DIREKTUR KLINIK PERCONTOHAN UTAMA</span></p>
+                            <p class="font-bold" style="text-align: center !important;">KEPUTUSAN <span class="doc-jabatan uppercase">KEPALA UPTD PUSKESMAS PERCONTOHAN</span></p>
                             <p style="text-align: center !important;">Nomor: <span class="doc-nomor font-bold">440/001/SK-PKM/2026</span></p>
                             <br>
                             <p class="font-bold uppercase" style="text-align: center !important;">TENTANG</p>
-                            <p class="font-bold uppercase doc-tentang" style="max-width: 80%; margin: 0 auto; text-align: center !important;">PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026</p>
+                            <p class="font-bold uppercase doc-tentang" style="max-width: 80%; margin: 0 auto; text-align: center !important;">PENETAPAN INDIKATOR MUTU PRIORITAS (IMP) TAHUN 2026</p>
                             <br>
-                            <p class="font-bold uppercase" style="text-align: center !important;"><span class="doc-jabatan">DIREKTUR KLINIK PERCONTOHAN UTAMA</span>,</p>
+                            <p class="font-bold uppercase" style="text-align: center !important;"><span class="doc-jabatan">KEPALA UPTD PUSKESMAS PERCONTOHAN</span>,</p>
                         </div>
                         <table style="border:none"><tbody id="doc-tbody-menimbang"></tbody></table>
                         <table style="border:none"><tbody id="doc-tbody-mengingat"></tbody></table>
@@ -273,14 +273,14 @@
                             <div class="w-1/2 flex flex-col items-center">
                                 <div class="text-left mb-4 w-full flex justify-center">
                                     <table style="border:none; font-size: 11pt; margin-bottom: 0; width: auto;">
-                                        <tr><td style="padding:0 10px 0 0;">Ditetapkan di</td><td style="padding:0 5px 0 0;">:</td><td style="padding:0;"><span class="doc-tempat">Jakarta</span></td></tr>
+                                        <tr><td style="padding:0 10px 0 0;">Ditetapkan di</td><td style="padding:0 5px 0 0;">:</td><td style="padding:0;"><span class="doc-tempat">Kuningan</span></td></tr>
                                         <tr><td style="padding:0 10px 0 0;">Pada tanggal</td><td style="padding:0 5px 0 0;">:</td><td style="padding:0;"><span class="doc-tanggal">2 Januari 2026</span></td></tr>
                                     </table>
                                 </div>
-                                <p class="font-bold uppercase doc-jabatan" style="text-align: center !important;">DIREKTUR KLINIK PERCONTOHAN UTAMA,</p>
+                                <p class="font-bold uppercase doc-jabatan" style="text-align: center !important;">KEPALA UPTD PUSKESMAS PERCONTOHAN,</p>
                                 <br><br><br>
                                 <p class="font-bold underline doc-nama" style="text-align: center !important;">dr. FULANAH, M.Kes</p>
-                                <p class="doc-nip" style="text-align: center !important;">NIK. 19800101 2005</p>
+                                <p class="doc-nip" style="text-align: center !important;">NIP. 19800101 200501 2 001</p>
                             </div>
                         </div>
                     </div>
@@ -800,6 +800,57 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
         } 
     }
 
+    // === DYNAMIC FORM HANDLER ===
+    function handleJenisChange() {
+        const jenis = document.getElementById('in-jenis').value;
+        const inPemda = document.getElementById('in-pemda');
+        const inInstansi = document.getElementById('in-instansi');
+        const inJabatan = document.getElementById('in-jabatan');
+        const inNomor = document.getElementById('in-nomor');
+        const inTentang = document.getElementById('in-tentang');
+
+        // Rotasi template otomatis sesuai jenis institusi
+        switch(jenis) {
+            case 'Puskesmas':
+                inPemda.value = 'PEMERINTAH KABUPATEN KUNINGAN';
+                inInstansi.value = 'UPTD PUSKESMAS PERCONTOHAN';
+                inJabatan.value = 'KEPALA UPTD PUSKESMAS PERCONTOHAN';
+                inNomor.value = '440/001/SK-PKM/2026';
+                inTentang.value = 'PENETAPAN INDIKATOR MUTU PRIORITAS (IMP) TAHUN 2026';
+                break;
+            case 'Klinik':
+                inPemda.value = 'PT BINTANG SEHAT';
+                inInstansi.value = 'KLINIK PERCONTOHAN UTAMA';
+                inJabatan.value = 'DIREKTUR KLINIK PERCONTOHAN UTAMA';
+                inNomor.value = '440/001/SK-KLINIK/2026';
+                inTentang.value = 'PEMBENTUKAN TIM PENINGKATAN MUTU DAN KESELAMATAN PASIEN TAHUN 2026';
+                break;
+            case 'Rumah Sakit':
+                inPemda.value = 'PEMERINTAH KABUPATEN KUNINGAN';
+                inInstansi.value = 'RSUD PERCONTOHAN';
+                inJabatan.value = 'DIREKTUR RSUD PERCONTOHAN';
+                inNomor.value = '440/001/SK-RS/2026';
+                inTentang.value = 'PEMBENTUKAN KOMITE MUTU RUMAH SAKIT TAHUN 2026';
+                break;
+            case 'Dinas Kesehatan':
+                inPemda.value = 'PEMERINTAH KABUPATEN KUNINGAN';
+                inInstansi.value = 'DINAS KESEHATAN';
+                inJabatan.value = 'KEPALA DINAS KESEHATAN';
+                inNomor.value = '440/001/SK-DINKES/2026';
+                inTentang.value = 'PEMBENTUKAN TIM PEMBINA CLUSTER KESEHATAN KABUPATEN TAHUN 2026';
+                break;
+        }
+
+        // Paksa sinkronisasi ke kertas pratinjau
+        sync('pemda', inPemda.value);
+        sync('instansi', inInstansi.value);
+        sync('jabatan', inJabatan.value);
+        sync('nomor', inNomor.value);
+        sync('tentang', inTentang.value);
+        
+        showToast(`Template dikalibrasi untuk ${jenis}`, "info");
+    }
+
     // === INIT SCRIPT ===
     window.onload = () => { 
         loadApiKeys();
@@ -816,9 +867,16 @@ ATURAN MUTLAK & ANCAMAN (JANGAN DILANGGAR):
             }
         }
         
-        // Cek apakah dibuka di luar Dashboard (tidak ada window parent)
+        // PERBAIKAN: Penanganan Standalone vs Dashboard
         if(window.parent === window) {
-            showToast("Aplikasi harus dijalankan dari Dashboard Utama", "error");
+            showToast("Mode Standalone: Aplikasi berjalan di luar Dashboard Utama", "info");
+            // Minta API Key manual untuk testing lokal jika session kosong
+            if (!apiKey) {
+                apiKey = prompt("Mode Testing: Masukkan API Key Gemini Anda untuk sesi ini:");
+                apiModel = "gemini-1.5-flash"; // Fallback model yang aman
+                sessionStorage.setItem('sehati_api_key', apiKey); 
+                sessionStorage.setItem('sehati_ai_model', apiModel);
+            }
         } else {
             // Minta konfigurasi ke Dashboard
             window.parent.postMessage({ type: 'REQUEST_CONFIG' }, '*');
