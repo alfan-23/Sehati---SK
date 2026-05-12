@@ -433,7 +433,7 @@
         apiModel = sessionStorage.getItem('sehati_ai_model') || "";
     }
 
-    // === MESIN AI GENERATOR ===
+    // === MESIN AI GENERATOR (ANTI-CRASH & DASHBOARD SYNC) ===
     async function callGemini(prompt, schema) {
         if (!apiKey || !apiModel) {
             showToast("Akses Ditolak: Menunggu konfigurasi aman dari Dashboard Utama.", "error");
@@ -443,12 +443,13 @@
         const isLive = document.getElementById('chk-live') && document.getElementById('chk-live').checked;
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${apiModel}:generateContent?key=${apiKey}`;
         
+        // PERBAIKAN 1: Pindahkan Schema JSON ke dalam instruksi Teks Prompt agar tidak memicu Error 400 dari Google
+        const safePrompt = prompt + "\n\nPENTING: KEMBALIKAN OUTPUT HANYA DALAM FORMAT JSON MURNI (TANPA FORMATTING MARKDOWN/TEKS LAIN) SESUAI STRUKTUR INI:\n" + JSON.stringify(schema, null, 2);
+
         const payload = {
-            contents: [{ parts: [{ text: prompt }] }],
+            contents: [{ parts: [{ text: safePrompt }] }],
             generationConfig: { 
-                responseMimeType: "application/json", 
-                responseSchema: schema, 
-                temperature: 0.2 // Diturunkan sedikit agar lebih kaku dan fokus pada JSON
+                temperature: 0.2 // Hapus responseSchema dari sini
             }
         };
 
@@ -462,6 +463,7 @@
                 const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 
                 if (!res.ok) {
+                    // Lapor ke Dashboard jika kena Limit/Error agar siklus berputar
                     if (res.status === 429 || res.status === 404 || res.status === 403 || res.status >= 500) {
                         if (window.parent !== window) {
                             window.parent.postMessage({ type: 'API_ERROR', code: res.status }, '*');
@@ -475,7 +477,6 @@
                 
                 const data = await res.json();
                 
-                // Pengecekan safety filter (jika AI menolak menjawab)
                 if (data.candidates && data.candidates[0].finishReason === 'SAFETY') {
                     throw new Error("Ditolak oleh sistem keamanan AI. Mohon kurangi teks referensi atau ubah kata kunci.");
                 }
@@ -483,14 +484,15 @@
                 let textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!textResponse) throw new Error("Respons kosong dari AI.");
                 
-                // PERBAIKAN TOTAL: Ekstraktor JSON Tangguh (Mengambil apapun yang berada di dalam kurung kurawal)
-                const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+                // PERBAIKAN 2: Regex Ekstraktor JSON Tangguh (Mengambil Object dan Array)
+                const jsonMatch = textResponse.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
                 if (jsonMatch) {
                     textResponse = jsonMatch[0];
                 } else {
                     throw new Error("AI tidak merespons dalam format JSON yang valid.");
                 }
 
+                // Lapor Sukses ke Dashboard agar Hitungan Error di-Reset
                 if (window.parent !== window) {
                     window.parent.postMessage({ type: 'API_SUCCESS' }, '*');
                 }
